@@ -1,0 +1,23 @@
+version 0.4.1 (13/06/2013)
+[+] Compatibilité PluXml 5.2
+
+version 0.4 (09/02/2013)
++ Paramètrage de l'ordre d'affichage des drapeaux
+BUG Mauvaise gestion du cookie pour la sélection de la langue coté visiteur
+
+version 0.3 (09/02/2013)
++ Gestion de la langue dans les urls pour éviter le duplicate content
++ Gestion de la langue dans les flux rss (requiert les modifications dans le fichier class.plx.feed.php)
++ Gestion de la langue dans le sitemap (requiert les modifications dans le fichier sitemap.php)
++ Un sitemap différent par langue
++ sitemapindex pour indiquer aux moteurs l'url des sitemaps pour chaque langue
+BUG Administration: Mauvais affichage des chemins des dossiers sur l'écran Paramètres > Configuration avancées
+BUG Administration: mauvais affichage des drapeaux si aucune langue sélectionnée
+BUG Validation xhtml
+
+version 0.2 (06/02/2013)
++ Sélection des langues à utiliser à partir de l'écran de configuration du plugin
++ Affichage des langues sous forme de drapeaux
++ Chargement de la langue du thème coté visiteur en fonction de la langue sélectionnée sous forme de drapeau
+
+version 0.1 (15/12/2012)
