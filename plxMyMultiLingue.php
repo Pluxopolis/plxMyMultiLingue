@@ -21,14 +21,14 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function __construct($default_lang) {
 
-        # appel du constructeur de la classe plxPlugin (obligatoire)
-        parent::__construct($default_lang);
+		# appel du constructeur de la classe plxPlugin (obligatoire)
+		parent::__construct($default_lang);
 
 		# droits pour accéder à la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
 
 		# déclaration des hooks partie administration
-        $this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
+		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
 		$this->addHook('plxFeedConstructLoadPlugins', 'ConstructLoadPlugins');
 		$this->addHook('AdminTopBottom', 'AdminTopBottom');
 		$this->addHook('AdminTopEndHead', 'AdminTopEndHead');
@@ -53,10 +53,10 @@ class plxMyMultiLingue extends plxPlugin {
 		if($this->getParam('flags')!='')
 			$this->aLangs = explode(',', $this->getParam('flags'));
 
-    }
+	}
 
-    # Méthode qui créée les répertoires des langues (écran de config du plugin)
-    public function mkDirs() {
+	# Méthode qui créée les répertoires des langues (écran de config du plugin)
+	public function mkDirs() {
 
 		$plxAdmin = plxAdmin::getInstance();
 
@@ -84,15 +84,15 @@ class plxMyMultiLingue extends plxPlugin {
 			plxUtils::write("<Files *>\n\tOrder allow,deny\n\tDeny from all\n</Files>",PLX_ROOT.PLX_CONFIG_PATH.$lang.'/.htaccess');
 		}
 
-    }
+	}
 
-    public function validLang($lang) {
-    	return (in_array($lang, $this->aLangs) ? $lang : "");
-    }
+	public function validLang($lang) {
+		return (in_array($lang, $this->aLangs) ? $lang : "");
+	}
 
-    public function getCurrentLang() {
+	public function getCurrentLang() {
 
-   		# traitment de la langue à utiliser si un drapeau est clické
+		# traitment de la langue à utiliser si un drapeau est clické
 		if($this->lang = $this->validLang(plxUtils::getValue($_GET["lang"]))) {
 			if(defined('PLX_ADMIN'))
 				$_SESSION["plxMyMultiLingue"] = $this->lang;
@@ -120,7 +120,7 @@ class plxMyMultiLingue extends plxPlugin {
 			}
 		}
 
-    }
+	}
 
 	public function ConstructLoadPlugins() {
 
@@ -137,7 +137,7 @@ class plxMyMultiLingue extends plxPlugin {
 			path("XMLFILE_TAGS", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/tags.xml");
 		?>';
 
-    }
+	}
 
 	public function plxAdminEditConfiguration() {
 
@@ -269,11 +269,10 @@ class plxMyMultiLingue extends plxPlugin {
 		?>';
 	}
 
-
 	public function SitemapBegin() {
 
-		# affichage du sipemapindex ou du sipemap de la langue
-		if($this->lang=='') {
+		# affichage du sitemapindex ou du sitemap de la langue
+		if(empty($_SERVER['QUERY_STRING'])) {
 			# création d'un sitemapindex
 			echo '<?php echo "<?xml version=\"1.0\" encoding=\"".strtolower(PLX_CHARSET)."\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" ?>';
 			foreach($this->aLangs as $lang) {
@@ -283,19 +282,12 @@ class plxMyMultiLingue extends plxPlugin {
 			}
 			echo '<?php echo "\n</sitemapindex>"; ?>';
 			echo '<?php return true; ?>';
-
-		} else {
-			# affichage du sitemap de la langue
-			echo '<?php ob_start(); ?>';
 		}
-
 	}
 
 	public function SitemapEnd() {
 
-		echo '<?php $output = ob_get_clean(); ?>';
 		$this->IndexEnd();
-		echo '<?php echo $output; ?>';
 
 	}
 
