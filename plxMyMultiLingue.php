@@ -259,7 +259,7 @@ class plxMyMultiLingue extends plxPlugin {
 	public function plxShowStaticListEnd() {
 		echo '<?php
 		foreach($menus as $idx => $menu) {
-			if(strpos($menu, "static-home")!==false) {
+			if(strpos($menu[0], "static-home")!==false) {
 				if($this->plxMotor->aConf["urlrewriting"])
 					$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
 				else
