@@ -9,7 +9,6 @@
 class plxMyMultiLingue extends plxPlugin {
 
 	public $aLangs = array(); # tableau des langues
-
 	public $lang = ''; # la langue courante
 
 	/**
@@ -20,39 +19,61 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function __construct($default_lang) {
-
+	
+		# récupération de la langue si présente dans l'url 
+		$get = plxUtils::getGets();
+		if(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
+			$this->lang = $capture[1];
+		elseif(isset($_SESSION['lang']))
+			$this->lang = $_SESSION['lang'];
+		elseif(isset($_COOKIE["plxMyMultiLingue"]))
+			$this->lang = $_COOKIE["plxMyMultiLingue"];
+		else
+			$this->lang = $default_lang;
+			
 		# appel du constructeur de la classe plxPlugin (obligatoire)
-		parent::__construct($default_lang);
+		parent::__construct($this->lang);
 
 		# droits pour accéder à la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
 
-		# déclaration des hooks partie administration
+		# déclaration des hooks partie publique
 		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
+		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
 		$this->addHook('plxFeedConstructLoadPlugins', 'ConstructLoadPlugins');
+		$this->addHook('plxFeedPreChauffageBegin', 'PreChauffageBegin');
+		$this->addHook('IndexEnd', 'IndexEnd');
+		$this->addHook('FeedEnd', 'FeedEnd');
+		$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
+		$this->addHook('SitemapBegin', 'SitemapBegin');		
+		
+		# déclaration des hooks partie administration
 		$this->addHook('AdminTopBottom', 'AdminTopBottom');
-		$this->addHook('AdminTopEndHead', 'AdminTopEndHead');
 		$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
 		$this->addHook('AdminSettingsAdvancedTop', 'AdminSettingsAdvancedTop');
 		$this->addHook('AdminArticleTop', 'AdminArticleTop');
 		$this->addHook('AdminArticleContent', 'AdminArticleContent');
-
-		# déclaration des hooks partie publique
-		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
-		$this->addHook('plxFeedPreChauffageBegin', 'PreChauffageBegin');
-		$this->addHook('IndexEnd', 'IndexEnd');
-		$this->addHook('ThemeEndHead', 'ThemeEndHead');
-		$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
-		$this->addHook('SitemapBegin', 'SitemapBegin');
-		$this->addHook('SitemapEnd', 'SitemapEnd');
-
+	
 		# déclaration hook utilisateur à mettre dans le thème
 		$this->addHook('MyMultiLingue', 'MyMultiLingue');
 
-		# récupération des langues cochées dans la configuration
+		# récupération des langues enregsitrées dans le fichier de configuration du plugin
 		if($this->getParam('flags')!='')
 			$this->aLangs = explode(',', $this->getParam('flags'));
 
+		$this->lang = $this->validLang($this->lang);
+		
+		define('PLX_MYMULTILINGUE', $this->getParam('flags'));
+		
+	}
+	
+	public function onDeactivate() {
+		unset($_SESSION['lang']);
+		unset($_SESSION['medias']);
+		unset($_SESSION['folder']);
+		unset($_SESSION['currentfolder']);	
+		unset($_COOKIE['plxMyMultiLingue']);
+		setcookie('plxMyMultiLingue', '', time() - 3600); 		
 	}
 
 	# Méthode qui créée les répertoires des langues (écran de config du plugin)
@@ -64,69 +85,78 @@ class plxMyMultiLingue extends plxPlugin {
 		$racine_articles = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_articles']);
 		$racine_statiques = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_statiques']);
 		$racine_commentaires =  str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_commentaires']);
+		$racine_images = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['images']);
+		$racine_documents = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['documents']);
 
-		# récupération des langues cochées dans la configuration
-		$aLangs = array();
-
-		if($this->getParam('flags')!='')
-			$aLangs = explode(',', $this->getParam('flags'));
-
-		foreach($aLangs as $lang) {
-			if(!is_dir(PLX_ROOT.$racine_articles.$lang))
-				mkdir(PLX_ROOT.$racine_articles.$lang, 0755, true);
-			if(!is_dir(PLX_ROOT.$racine_statiques.$lang))
-				mkdir(PLX_ROOT.$racine_statiques.$lang, 0755, true);
-			if(!is_dir(PLX_ROOT.$racine_commentaires.$lang))
-				mkdir(PLX_ROOT.$racine_commentaires.$lang, 0755, true);
-			if(!is_dir(PLX_ROOT.PLX_CONFIG_PATH.$lang))
-				mkdir(PLX_ROOT.PLX_CONFIG_PATH.$lang, 0755, true);
-			plxUtils::write('',PLX_ROOT.PLX_CONFIG_PATH.$lang.'/index.html');
-			plxUtils::write("<Files *>\n\tOrder allow,deny\n\tDeny from all\n</Files>",PLX_ROOT.PLX_CONFIG_PATH.$lang.'/.htaccess');
+		if(isset($_POST['flags'])) {
+			foreach($_POST['flags'] as $lang) {
+				if(!is_dir(PLX_ROOT.$racine_articles.$lang))
+					mkdir(PLX_ROOT.$racine_articles.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.$racine_statiques.$lang))
+					mkdir(PLX_ROOT.$racine_statiques.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.$racine_commentaires.$lang))
+					mkdir(PLX_ROOT.$racine_commentaires.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.$racine_images.$lang))
+					mkdir(PLX_ROOT.$racine_images.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.$racine_documents.$lang))
+					mkdir(PLX_ROOT.$racine_documents.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.PLX_CONFIG_PATH.$lang))
+					mkdir(PLX_ROOT.PLX_CONFIG_PATH.$lang, 0755, true);
+				plxUtils::write('',PLX_ROOT.PLX_CONFIG_PATH.$lang.'/index.html');
+				plxUtils::write("<Files *>\n\tOrder allow,deny\n\tDeny from all\n</Files>",PLX_ROOT.PLX_CONFIG_PATH.$lang.'/.htaccess');
+			}
 		}
 
 	}
 
 	public function validLang($lang) {
-		return (in_array($lang, $this->aLangs) ? $lang : "");
+		return (in_array($lang, $this->aLangs) ? $lang : $this->default_lang);
 	}
 
 	public function getCurrentLang() {
+	
+		# sélection de la langue à partir d'un drapeau
+		if(isset($_GET["lang"]) AND !empty($_GET["lang"])) {
+		
+			$this->lang = $this->validLang(plxUtils::getValue($_GET["lang"])); 
 
-		# traitment de la langue à utiliser si un drapeau est clické
-		if($this->lang = $this->validLang(plxUtils::getValue($_GET["lang"]))) {
-			if(defined('PLX_ADMIN'))
-				$_SESSION["plxMyMultiLingue"] = $this->lang;
-			else
-				setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30);  // expire dans 30 jours
-
-			# on redirige pour nettoyer l'url
-			header('Location: '.plxUtils::strCheck($_SERVER['PHP_SELF']));
-			exit;
-		}
-
-		# partie administration
-		if(defined('PLX_ADMIN')) {
-			if(!$this->lang = $this->validLang(plxUtils::getValue($_SESSION['plxMyMultiLingue'])))
-				$this->lang = $this->default_lang;
-		} else {
-			if(preg_match('/sitemap\.php\??([a-zA-Z]+)?/', $_SERVER['REQUEST_URI'], $capture)) {
-				$this->lang = $this->validLang(plxUtils::getValue($capture[1]));
-			} else {
-				if(!$this->lang = $this->validLang(plxUtils::getValue($_COOKIE["plxMyMultiLingue"]))) {
-					$this->lang = $this->default_lang;
-					setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30);  // expire dans 30 jours
-				}
-				echo '<?php $this->aConf["default_lang"]="'.$this->lang.'"; ?>';
+			if(defined('PLX_ADMIN')) {
+				unset($_SESSION['medias']);
+				unset($_SESSION['folder']);
+				unset($_SESSION['currentfolder']);
 			}
+			setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30);  // expire dans 30 jours
+			$_SESSION['lang'] = $this->lang;
+			
+			# redirection avec un minimum de sécurité sur l'url
+			if(defined('PLX_ADMIN')) {
+				if(preg_match('@^'.plxUtils::getRacine().'(.*)@', $_SERVER['HTTP_REFERER']))
+					header('Location: '.plxUtils::strCheck($_SERVER['HTTP_REFERER']));
+				else
+					header('Location: '.plxUtils::getRacine());
+				exit;
+			} else {
+				# on redirige pour nettoyer l'url
+				header('Location: '.plxUtils::strCheck($_SERVER['PHP_SELF']));
+				exit;
+			}			
 		}
-
+		
+		# récupération de la langue si on accède au site à partir du sitemap
+		if(preg_match('/sitemap\.php\??([a-zA-Z]+)?/', $_SERVER['REQUEST_URI'], $capture)) {
+			$this->lang = $this->validLang(plxUtils::getValue($capture[1]));	
+			return;
+		}
+		
+		setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30);  // expire dans 30 jours
+		
 	}
 
 	public function ConstructLoadPlugins() {
 
 		# récupération de la langue à utiliser
 		$this->getCurrentLang();
-
+								
 		# modification des chemins d'accès
 		echo '<?php
 			$this->aConf["racine_articles"] = $this->aConf["racine_articles"]."'.$this->lang.'/";
@@ -136,6 +166,14 @@ class plxMyMultiLingue extends plxPlugin {
 			path("XMLFILE_STATICS", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/statiques.xml");
 			path("XMLFILE_TAGS", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/tags.xml");
 		?>';
+		
+		# s'il faut un dossier images et documents différents pour chaque langue
+		if($this->getParam('lang_images_folder')) {
+			echo '<?php $this->aConf["images"] = $this->aConf["images"]."'.$this->lang.'/"; ?>';
+		}
+		if($this->getParam('lang_documents_folder')) {
+			echo '<?php $this->aConf["documents"] = $this->aConf["documents"]."'.$this->lang.'/"; ?>';
+		}
 
 	}
 
@@ -147,6 +185,13 @@ class plxMyMultiLingue extends plxPlugin {
 			$global["racine_statiques"] = str_replace("/'.$this->lang.'/", "/", $global["racine_statiques"]);
 			$global["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $global["racine_commentaires"]);
 		?>';
+		# pour ne pas écraser le chemin du dossier des images et des documents
+		if($this->getParam('lang_images_folder')) {
+			echo '<?php $global["images"] = str_replace("/'.$this->lang.'/", "/", $global["images"]); ?>';
+		}
+		if($this->getParam('lang_documents_folder')) {
+			echo '<?php $global["documents"] = str_replace("/'.$this->lang.'/", "/", $global["documents"]); ?>';
+		}		
 	}
 
 	public function AdminSettingsAdvancedTop() {
@@ -157,35 +202,19 @@ class plxMyMultiLingue extends plxPlugin {
 			$plxAdmin->aConf["racine_statiques"] = str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_statiques"]);
 			$plxAdmin->aConf["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_commentaires"]);
 		?>';
-	}
-
-
-	public function AdminTopEndHead() {
-
-		echo '
-		<style type="text/css">
-		#langs { width:100%; float:right; top:0; text-align:right; }
-		#langs a { margin: 0 10px 0 0 }
-		#langs a.lang img	{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; }
-		#langs a.active img	{ padding: 2px 2px 2px 2px; border: 1px solid red; }
-		</style>
-		';
-	}
-
-	public function ThemeEndHead() {
-
-		echo '
-		<style type="text/css">
-		#langs ul li { display:inline; list-style-type: none;}
-		#langs a { margin: 0 10px 0 0; }
-		#langs a.lang img	{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; }
-		#langs a.active img	{ padding: 2px 2px 2px 2px; border: 1px solid red; }
-		</style>
-		';
+		# pour ne pas écraser le chemin du dossier des images et des documents
+		if($this->getParam('lang_images_folder')) {
+			echo '<?php $plxAdmin->aConf["images"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["images"]); ?>';
+		}
+		if($this->getParam('lang_documents_folder')) {
+			echo '<?php $plxAdmin->aConf["documents"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["documents"]); ?>';
+		}
+		
 	}
 
 	public function AdminTopBottom() {
-
+		
+		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<div id="langs">';
 			foreach($this->aLangs as $lang) {
@@ -194,7 +223,7 @@ class plxMyMultiLingue extends plxPlugin {
 			}
 			echo '</div>';
 		}
-
+		
 	}
 
 	public function AdminArticleTop() {
@@ -247,6 +276,32 @@ class plxMyMultiLingue extends plxPlugin {
 		?>';
 
 	}
+	
+	public function FeedEnd() {
+
+		echo '<?php
+		if($plxFeed->aConf["urlrewriting"]) {
+			$output = str_replace($plxFeed->racine."article", $plxFeed->racine."'.$this->lang.'/article", $output);
+			$output = str_replace($plxFeed->racine."static", $plxFeed->racine."'.$this->lang.'/static", $output);
+			$output = str_replace($plxFeed->racine."categorie", $plxFeed->racine."'.$this->lang.'/categorie", $output);
+			$output = str_replace($plxFeed->racine."tag", $plxFeed->racine."'.$this->lang.'/tag", $output);
+			$output = str_replace($plxFeed->racine."archives", $plxFeed->racine."'.$this->lang.'/archives", $output);
+			$output = str_replace($plxFeed->racine."feed", $plxFeed->racine."feed/'.$this->lang.'", $output);
+			$output = str_replace($plxFeed->racine."page", $plxFeed->racine."'.$this->lang.'/page", $output);
+			$output = str_replace($plxFeed->racine."blog", $plxFeed->racine."'.$this->lang.'/blog", $output);
+		} else {
+			$output = str_replace("?article", "?'.$this->lang.'/article", $output);
+			$output = str_replace("?static", "?'.$this->lang.'/static", $output);
+			$output = str_replace("?categorie", "?'.$this->lang.'/categorie", $output);
+			$output = str_replace("?tag", "?'.$this->lang.'/tag", $output);
+			$output = str_replace("?archives", "?'.$this->lang.'/archives", $output);
+			$output = str_replace("?rss", "?'.$this->lang.'/rss", $output);
+			$output = str_replace("?page", "?'.$this->lang.'/page", $output);
+			$output = str_replace("?blog", "?'.$this->lang.'/blog", $output);
+		}
+		?>';
+
+	}	
 
 	public function PreChauffageBegin() {
 
@@ -259,7 +314,7 @@ class plxMyMultiLingue extends plxPlugin {
 	public function plxShowStaticListEnd() {
 		echo '<?php
 		foreach($menus as $idx => $menu) {
-			if(strpos($menu[0], "static-home")!==false) {
+			if(strpos($menu[0], "static-home")===false) {
 				if($this->plxMotor->aConf["urlrewriting"])
 					$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
 				else

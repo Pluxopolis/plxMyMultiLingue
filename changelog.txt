@@ -1,3 +1,7 @@
+﻿version 0.4.4 (21/02/2014)
+[+] Dossier images ou documents pour chaque langue (paramètrable dans la configuration du plugin)
+BUG Pas de prise en compte de la langue à partir des flux rss
+
 version 0.4.3 (20/02/2014)
 [+] Compatibilité PluXml 5.3
 

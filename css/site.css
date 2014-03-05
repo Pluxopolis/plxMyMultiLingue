@@ -1,0 +1,4 @@
+#langs ul li { display:inline; list-style-type: none;}
+#langs a { margin: 0 10px 0 0; }
+#langs a.lang img	{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; }
+#langs a.active img	{ padding: 2px 2px 2px 2px; border: 1px solid red; }
