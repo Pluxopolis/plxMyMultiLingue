@@ -4,7 +4,7 @@
 # Control du token du formulaire
 plxToken::validateFormToken($_POST);
 
-$Captions = array(
+$Labels = array(
 	'fr'	=> 'Français',
 	'en'	=> 'English',
 	'de'	=> 'Deutsch',
@@ -23,12 +23,12 @@ if(!empty($_POST)) {
 	if(isset($_POST['flags']) AND sizeof($_POST['flags'])>0) {
 		foreach($_POST['flags'] as $flag) {
 			$array1[$flag] = $_POST['order'][$flag];
-			$array2[$flag] = $_POST['caption'][$flag];
+			$array2[$flag] = $_POST['label'][$flag];
 		}
 		uasort($array1, create_function('$a, $b', 'return $a>$b;'));
 	}
 	$plxPlugin->setParam('flags', implode(",",array_keys($array1)), 'string');
-	$plxPlugin->setParam('captions', serialize($array2), 'cdata');
+	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
 	$plxPlugin->setParam('lang_images_folder', $_POST['lang_images_folder'], 'numeric');
 	$plxPlugin->setParam('lang_documents_folder', $_POST['lang_documents_folder'], 'numeric');
 	$plxPlugin->setParam('display', $_POST['display'], 'string');
@@ -47,8 +47,8 @@ if(!empty($_POST)) {
 # Récupération des langues sélectionnées
 $flags = $plxPlugin->getParam('flags');
 $aFlags = $flags!='' ? explode(',', $flags) : array() ;
-$captions = $plxPlugin->getParam('captions');
-$aCaptions = $captions!='' ? unserialize($captions) : $Captions;
+$labels = $plxPlugin->getParam('labels');
+$aLabels = $labels!='' ? unserialize($labels) : $Labels;
 $display = $plxPlugin->getParam('display')!='' ? $plxPlugin->getParam('display') : 'flag';
 $redirect_ident = $plxPlugin->getParam('redirect_ident') == '' ? 0 : $plxPlugin->getParam('redirect_ident');
 
@@ -67,7 +67,7 @@ $lang_documents_folder = $plxPlugin->getParam('lang_documents_folder')=='' ? 0 :
 			<tr>
 				<th style="width:10px">&nbsp;</th>
 				<th style="width:20px"></th>
-				<th style="width:20px"><?php $plxPlugin->lang('L_CAPTION') ?></th>
+				<th style="width:20px"><?php $plxPlugin->lang('L_LABEL') ?></th>
 				<th style="width:40px"></th>
 				<th style="width:60px"><?php $plxPlugin->lang('L_ORDER') ?></th>
 			</tr>
@@ -82,8 +82,8 @@ $lang_documents_folder = $plxPlugin->getParam('lang_documents_folder')=='' ? 0 :
 				$selected = in_array($flag,$aFlags)?'checked="checked" ':'';
 				echo '<td><input type="checkbox" '.$selected.'id="flag_'.$flag.'" name="flags['.$flag.']" value="'.$flag.'" /></td>';
 				echo '<td>'.$flag.'</td>';
-				$caption = $aCaptions[$flag]=='' ? $Captions[$flag] : $aCaptions[$flag];
-				echo '<td><input size="10" maxlength="30" type="input" id="caption_'.$flag.'" name="caption['.$flag.']" value="'.plxUtils::strCheck($caption).'" /></td>';
+				$label = $aLabels[$flag]=='' ? $Labels[$flag] : $aLabels[$flag];
+				echo '<td><input size="10" maxlength="30" type="input" id="label_'.$flag.'" name="label['.$flag.']" value="'.plxUtils::strCheck($label).'" /></td>';
 				echo '<td><img src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$flag.'.png" alt="'.$flag.'" style="width:25px" /></td>';
 				echo '<td><input size="2" maxlength="2" type="input" id="order_'.$flag.'" name="order['.$flag.']" value="'.$order.'" /></td>';
 				echo '</tr>';
@@ -97,7 +97,7 @@ $lang_documents_folder = $plxPlugin->getParam('lang_documents_folder')=='' ? 0 :
 		<p class="field"><label for="id_lang_documents_folder"><?php echo $plxPlugin->lang('L_LANG_DOCUMENTS_FOLDER') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('lang_documents_folder',array('1'=>L_YES,'0'=>L_NO),$lang_documents_folder) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
-		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'caption'=>$plxPlugin->getLang('L_CAPTION')),$display) ?>
+		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL')),$display) ?>
 		<p class="field"><label for="id_redirect_ident"><?php echo $plxPlugin->lang('L_REDIRECT_IDENT') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('redirect_ident',array('1'=>L_YES,'0'=>L_NO),$redirect_ident) ?>
 	</fieldset>

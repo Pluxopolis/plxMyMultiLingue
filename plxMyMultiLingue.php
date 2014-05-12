@@ -433,7 +433,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function AdminTopBottom() {
 
-		$aCaptions = unserialize($this->getParam('captions'));
+		$aLabels = unserialize($this->getParam('labels'));
 
 		# affichage des drapeaux
 		if($this->aLangs) {
@@ -441,7 +441,7 @@ class plxMyMultiLingue extends plxPlugin {
 			foreach($this->aLangs as $lang) {
 				$sel = $this->lang==$lang ? " active" : "";
 				$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" style="width:25px" />';
-				$display = $this->getParam('display')=='flag' ? $img : $aCaptions[$lang];
+				$display = $this->getParam('display')=='flag' ? $img : $aLabels[$lang];
 				echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$display.'</a>';
 			}
 			echo '</div>';
@@ -587,7 +587,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function MyMultiLingue() {
 
-		$aCaptions = unserialize($this->getParam('captions'));
+		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
 			echo '<div id="langs">';
@@ -595,7 +595,7 @@ class plxMyMultiLingue extends plxPlugin {
 			foreach($this->aLangs as $idx=>$lang) {
 				$sel = $this->lang==$lang ? ' active':'';
 				$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" style=\"width:25px\" />';
-				$display = $this->getParam('display')=='flag' ? $img : $aCaptions[$lang];
+				$display = $this->getParam('display')=='flag' ? $img : $aLabels[$lang];
 				echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$display.'</a></li>"; ?>';
 			}
 			echo '</ul>';
