@@ -1,4 +1,12 @@
-﻿version 0.4.4 (21/02/2014)
+﻿version 0.5 (30/04/2014)
+[+] Choix affichage drapeaux ou libellés
+[+] Gestion du titre, de la description, des metas description et keywords du site en fonction de la langue
+[+] Bascule sur l'article, catégorie ou page statique avec le même identifiant lors du changement de langue.
+[+] Traductions du plugin: de, es, it, nl, pl, pt, po, ru
+[+] Conversion des images des drapeaux au format png (taille globale des fichiers réduites de 161Ko à 8.5Ko)
+BUG Mauvais liens des pages statiques
+
+version 0.4.4 (21/02/2014)
 [+] Dossier images ou documents pour chaque langue (paramètrable dans la configuration du plugin)
 BUG Pas de prise en compte de la langue à partir des flux rss
 
