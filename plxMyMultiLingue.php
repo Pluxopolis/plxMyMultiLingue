@@ -440,9 +440,13 @@ class plxMyMultiLingue extends plxPlugin {
 			echo '<div id="langs">';
 			foreach($this->aLangs as $lang) {
 				$sel = $this->lang==$lang ? " active" : "";
-				$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" style="width:25px" />';
-				$display = $this->getParam('display')=='flag' ? $img : $aLabels[$lang];
-				echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$display.'</a>';
+				if($this->getParam('display')=='flag') {
+					$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
+					echo '<a href="?lang='.$lang.'">'.$img.'</a>';
+				} else {
+					echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+				}
+					
 			}
 			echo '</div>';
 		}
@@ -594,9 +598,13 @@ class plxMyMultiLingue extends plxPlugin {
 			echo '<ul>';
 			foreach($this->aLangs as $idx=>$lang) {
 				$sel = $this->lang==$lang ? ' active':'';
-				$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" style=\"width:25px\" />';
-				$display = $this->getParam('display')=='flag' ? $img : $aLabels[$lang];
-				echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$display.'</a></li>"; ?>';
+				if($this->getParam('display')=='flag') {
+					$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />';
+					echo '<li><?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$img.'</a></li>"; ?>';
+				} else {
+					echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
+				}
+				
 			}
 			echo '</ul>';
 			echo '</div>';
