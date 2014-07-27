@@ -12,5 +12,9 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configuration <strong>%s</strong> absente pour les plugins',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuration <strong>%s</strong> absente pour le plugin',
 'L_REDIRECT_IDENT'					=> 'Basculer sur le même identifiant lors du changement de langue pour les articles, catégories ou pages statiques',
+'L_ONLEAVINGLANG'					=> 'Afficher un message d\'avertissement avant de changer de langue dans la zone d\'administration',
+'L_WARNING_LEAVING_PAGE'			=> 'Vous allez changer de langue. Avez-vous sauvegardé vos modifications ?',
+'L_SWITCH_TO_ANTE'					=> 'Passer en ',
+'L_SWITCH_TO_POST'					=> '',
 );
 ?>

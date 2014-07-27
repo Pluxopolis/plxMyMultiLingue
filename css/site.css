@@ -1,3 +1,4 @@
+#langs { display: block; }
 #langs ul li 		{ display:inline; list-style-type: none;}
 #langs a 			{ margin: 0 10px 0 0; text-decoration: none }
 #langs a:hover		{ color: #db2020; }
