@@ -50,6 +50,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# déclaration des hooks plxAdmin
 		$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
+		$this->addHook('AdminFootEndBody', 'AdminFootEndBody');
 
 		# déclaration des hooks plxShow
 		$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
@@ -435,6 +436,11 @@ class plxMyMultiLingue extends plxPlugin {
 
 		$aLabels = unserialize($this->getParam('labels'));
 
+		$onclick = '';
+		if($this->getParam('onleavinglang')==1) {
+			$onclick = ' onclick="return confirm(\''.$this->getLang("L_WARNING_LEAVING_PAGE").'\')"';
+		}
+
 		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<div id="langs">';
@@ -442,11 +448,11 @@ class plxMyMultiLingue extends plxPlugin {
 				$sel = $this->lang==$lang ? " active" : "";
 				if($this->getParam('display')=='flag') {
 					$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
-					echo '<a href="?lang='.$lang.'">'.$img.'</a>';
+					echo '<a'.$onclick.' href="?lang='.$lang.'">'.$img.'</a>';
 				} else {
-					echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+					echo '<a'.$onclick.' class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
 				}
-					
+
 			}
 			echo '</div>';
 		}
@@ -474,7 +480,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function AdminArticleContent() {
 
-		echo '<?php echo preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", ob_get_clean()); ?>';
+		echo '<?php echo preg_replace("/\?(article[a-z0-9-]+\/)/", "?'.$this->lang.'/$1", ob_get_clean()); ?>';
 
 	}
 
@@ -579,9 +585,9 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
-	/********************************/
-	/* theme: affichage du drapeaux */
-	/********************************/
+	/***************************************************************************/
+	/* theme: affichage du widget changement de langue (drapeaux ou libelllés) */
+	/***************************************************************************/
 
 	/**
 	 * Méthode qui affiche les drapeaux ou le nom des langues pour la partie visiteur du site
@@ -589,27 +595,84 @@ class plxMyMultiLingue extends plxPlugin {
 	 * return	stdio
 	 * @author	Stephane F
 	 **/
-	public function MyMultiLingue() {
+
+	public function MyMultiLingue($idTag='') {
 
 		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
-			echo '<div id="langs">';
-			echo '<ul>';
-			foreach($this->aLangs as $idx=>$lang) {
-				$sel = $this->lang==$lang ? ' active':'';
-				if($this->getParam('display')=='flag') {
+			echo "<span id='langs${idTag}'>";
+			if($this->getParam('display')=='flag') {
+				echo '<ul>';
+				foreach($this->aLangs as $idx=>$lang) {
+					$sel = $this->lang==$lang ? ' active':'';
 					$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />';
 					echo '<li><?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$img.'</a></li>"; ?>';
-				} else {
-					echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
 				}
-				
+				echo '</ul>';
+			} else { // on utilise les libellés
+				if (count($this->aLangs) == 2) {
+					// Seulement 2 langues : affiche une ligne pour passer à l'autre langue
+					foreach($this->aLangs as $idx=>$lang) {
+						if ($this->lang!=$lang) {
+							$alterLang = $this->loadLang(PLX_PLUGINS.'plxMyMultiLingue/lang/'.$lang.'.php');
+							echo '<?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $alterLang['L_SWITCH_TO_ANTE']. $aLabels[$lang] . $alterLang['L_SWITCH_TO_POST'].'</a>"; ?>';
+						}
+					}
+				} else {
+					// Plus de 2 langues : affiche une liste déroulante avec toutes les langues
+					echo '<img src="'.PLX_PLUGINS.'plxMyMultiLingue/img/multilang.png" />&nbsp;&nbsp';
+					$this->printSelect('theLangs', $aLabels, $this->lang, false, '', true,"document.location='/?lang='+this.options[this.selectedIndex].value");
+				}
 			}
-			echo '</ul>';
-			echo '</div>';
+			echo '</span>';
 		}
 	}
+	
+		/**
+	 * Méthode qui affiche une liste de sélection
+	 *
+	 * @param	name		nom de la liste
+	 * @param	array		valeurs de la liste sous forme de tableau (nom, valeur)
+	 * @param	selected	valeur par défaut
+	 * @param	readonly	vrai si la liste est en lecture seule (par défaut à faux)
+	 * @param	class		class css à utiliser pour formater l'affichage
+	 * @param	id			si vrai génère un id à partir du nom du champ, sinon génère l'id à partir du paramètre
+	 * @return	stdout
+	 **/
+	private function printSelect($name, $array, $selected='', $readonly=false, $class='', $id=true, $onchange='') {
 
+		if(!is_array($array)) $array=array();
+
+		if(is_bool($id))
+			$id = ($id ? ' id="id_'.$name.'"' : '');
+		else
+			$id = ($id!='' ? ' id="'.$id.'"' : '');
+		
+		$changeVal = ($onchange==''?'':" onchange=\"${onchange}\" ");
+
+		if($readonly)
+			echo '<select'.$id.' name="'.$name.'" disabled="disabled" class="readonly">'."\n";
+		else
+			echo '<select'.$id.' name="'.$name.'"'.($class!=''?' class="'.$class.'"':'').$changeVal.'>'."\n";
+		foreach($array as $a => $b) {
+			if(is_array($b)) {
+				echo '<optgroup label="'.$a.'">'."\n";
+				foreach($b as $c=>$d) {
+					if($c == $selected)
+						echo "\t".'<option value="'.$c.'" selected="selected">'.$d.'</option>'."\n";
+					else
+						echo "\t".'<option value="'.$c.'">'.$d.'</option>'."\n";
+				}
+				echo '</optgroup>'."\n";
+			} else {
+				if($a == $selected)
+					echo "\t".'<option value="'.$a.'" selected="selected">'.$b.'</option>'."\n";
+				else
+					echo "\t".'<option value="'.$a.'">'.$b.'</option>'."\n";
+			}
+		}
+		echo '</select>'."\n";
+	}
 }
 ?>
