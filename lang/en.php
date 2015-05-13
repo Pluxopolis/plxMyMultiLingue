@@ -3,8 +3,7 @@
 $LANG = array(
 'L_SAVE'							=> 'Save',
 'L_FLAGS'							=> 'Select languages to manage',
-'L_LANG_IMAGES_FOLDER'				=> 'Use a different images folder for each langue',
-'L_LANG_DOCUMENTS_FOLDER'			=> 'Use a different documents folder for each langue',
+'L_LANG_MEDIAS_FOLDER'				=> 'Use a different medias folder for each langue',
 'L_FLAG'							=> 'Flag',
 'L_LABEL'							=> 'Label',
 'L_DISPLAY'							=> 'Type d\'affichage',

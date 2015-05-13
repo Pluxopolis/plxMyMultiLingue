@@ -108,7 +108,6 @@ class plxMyMultiLingue extends plxPlugin {
 		$racine_statiques = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_statiques']);
 		$racine_commentaires =  str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_commentaires']);
 		$racine_images = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['images']);
-		$racine_documents = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['documents']);
 
 		if(isset($_POST['flags'])) {
 			foreach($_POST['flags'] as $lang) {
@@ -120,8 +119,6 @@ class plxMyMultiLingue extends plxPlugin {
 					mkdir(PLX_ROOT.$racine_commentaires.$lang, 0755, true);
 				if(!is_dir(PLX_ROOT.$racine_images.$lang))
 					mkdir(PLX_ROOT.$racine_images.$lang, 0755, true);
-				if(!is_dir(PLX_ROOT.$racine_documents.$lang))
-					mkdir(PLX_ROOT.$racine_documents.$lang, 0755, true);
 				if(!is_dir(PLX_ROOT.PLX_CONFIG_PATH.$lang))
 					mkdir(PLX_ROOT.PLX_CONFIG_PATH.$lang, 0755, true);
 				plxUtils::write('',PLX_ROOT.PLX_CONFIG_PATH.$lang.'/index.html');
@@ -302,10 +299,6 @@ class plxMyMultiLingue extends plxPlugin {
 		if($this->getParam('lang_images_folder')) {
 			echo '<?php $this->aConf["images"] = $this->aConf["images"]."'.$this->lang.'/"; ?>';
 		}
-		if($this->getParam('lang_documents_folder')) {
-			echo '<?php $this->aConf["documents"] = $this->aConf["documents"]."'.$this->lang.'/"; ?>';
-		}
-
 	}
 
 	/********************************/
@@ -365,9 +358,6 @@ class plxMyMultiLingue extends plxPlugin {
 		if($this->getParam('lang_images_folder')) {
 			echo '<?php $global["images"] = str_replace("/'.$this->lang.'/", "/", $global["images"]); ?>';
 		}
-		if($this->getParam('lang_documents_folder')) {
-			echo '<?php $global["documents"] = str_replace("/'.$this->lang.'/", "/", $global["documents"]); ?>';
-		}
 
 		# pour tenir compte des changements de paramètrage de la langue par défaut du site
 		echo '<?php
@@ -397,9 +387,6 @@ class plxMyMultiLingue extends plxPlugin {
 		# pour ne pas écraser le chemin du dossier des images et des documents
 		if($this->getParam('lang_images_folder')) {
 			echo '<?php $plxAdmin->aConf["images"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["images"]); ?>';
-		}
-		if($this->getParam('lang_documents_folder')) {
-			echo '<?php $plxAdmin->aConf["documents"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["documents"]); ?>';
 		}
 
 	}
@@ -446,7 +433,7 @@ class plxMyMultiLingue extends plxPlugin {
 				} else {
 					echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
 				}
-					
+
 			}
 			echo '</div>';
 		}
@@ -604,7 +591,7 @@ class plxMyMultiLingue extends plxPlugin {
 				} else {
 					echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
 				}
-				
+
 			}
 			echo '</ul>';
 			echo '</div>';

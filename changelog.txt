@@ -1,4 +1,10 @@
-﻿version 0.5 (30/04/2014)
+﻿version 0.5.1 (13/05/2015)
+[+] Compatibilité PluXml 5.4
+[+] Ajout drapeau occitan
+[-] Suppression gestion dossier Documents
+BUG Warning sur langue occitan non déclarée
+
+version 0.5 (30/04/2014)
 [+] Choix affichage drapeaux ou libellés
 [+] Gestion du titre, de la description, des metas description et keywords du site en fonction de la langue
 [+] Bascule sur l'article, catégorie ou page statique avec le même identifiant lors du changement de langue.
@@ -7,7 +13,7 @@
 BUG Mauvais liens des pages statiques
 
 version 0.4.4 (21/02/2014)
-[+] Dossier images ou documents pour chaque langue (paramètrable dans la configuration du plugin)
+[+] Dossier images ou documents pour chaque langue (paramétrable dans la configuration du plugin)
 BUG Pas de prise en compte de la langue à partir des flux rss
 
 version 0.4.3 (20/02/2014)
@@ -20,7 +26,7 @@ version 0.4.1 (13/06/2013)
 [+] Compatibilité PluXml 5.2
 
 version 0.4 (09/02/2013)
-+ Paramètrage de l'ordre d'affichage des drapeaux
++ Paramétrage de l'ordre d'affichage des drapeaux
 BUG Mauvaise gestion du cookie pour la sélection de la langue coté visiteur
 
 version 0.3 (09/02/2013)

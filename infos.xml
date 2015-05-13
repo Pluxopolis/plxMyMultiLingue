@@ -2,8 +2,8 @@
 <document>
 	<title><![CDATA[MultiLingue]]></title>
 	<author><![CDATA[Stephane F.]]></author>
-	<version>0.5</version>
-	<date>30/04/2014</date>
+	<version>0.5.1</version>
+	<date>13/05/2015</date>
 	<site>http://pluxopolis.net</site>
 	<description><![CDATA[Gestion multilingue de PluXml]]></description>
 	<requirements></requirements>
