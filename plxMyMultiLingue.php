@@ -39,6 +39,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->setConfigProfil(PROFIL_ADMIN);
 
 		# déclaration des hooks partie publique
+		$this->addHook('ThemeEndHead', 'ThemeEndHead');
 		$this->addHook('IndexEnd', 'IndexEnd');
 		$this->addHook('FeedEnd', 'FeedEnd');
 		$this->addHook('SitemapBegin', 'SitemapBegin');
@@ -80,8 +81,12 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
+	public function ThemeEndHead() {
+		echo '<?php echo "\t<link rel=\"alternate\" hreflang=\"".$plxShow->defaultLang(false)."\" href=\"".$plxShow->plxMotor->urlRewrite($plxShow->defaultLang(false)."/".$plxShow->plxMotor->get)."\" />\n" ?>';
+	}
+	
 	/**
-	 * Méthode executée à la désactivation du plugin
+	 * Méthode exécutée à la désactivation du plugin
 	 *
 	 * @author	Stephane F
 	 **/
@@ -107,7 +112,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$racine_articles = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_articles']);
 		$racine_statiques = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_statiques']);
 		$racine_commentaires =  str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['racine_commentaires']);
-		$racine_images = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['images']);
+		$racine_medias = str_replace('/'.$this->lang.'/', '/', $plxAdmin->aConf['medias']);
 
 		if(isset($_POST['flags'])) {
 			foreach($_POST['flags'] as $lang) {
@@ -117,8 +122,8 @@ class plxMyMultiLingue extends plxPlugin {
 					mkdir(PLX_ROOT.$racine_statiques.$lang, 0755, true);
 				if(!is_dir(PLX_ROOT.$racine_commentaires.$lang))
 					mkdir(PLX_ROOT.$racine_commentaires.$lang, 0755, true);
-				if(!is_dir(PLX_ROOT.$racine_images.$lang))
-					mkdir(PLX_ROOT.$racine_images.$lang, 0755, true);
+				if(!is_dir(PLX_ROOT.$racine_medias.$lang))
+					mkdir(PLX_ROOT.$racine_medias.$lang, 0755, true);
 				if(!is_dir(PLX_ROOT.PLX_CONFIG_PATH.$lang))
 					mkdir(PLX_ROOT.PLX_CONFIG_PATH.$lang, 0755, true);
 				plxUtils::write('',PLX_ROOT.PLX_CONFIG_PATH.$lang.'/index.html');
@@ -295,9 +300,9 @@ class plxMyMultiLingue extends plxPlugin {
 			}
 		?>';
 
-		# s'il faut un dossier images et documents différents pour chaque langue
-		if($this->getParam('lang_images_folder')) {
-			echo '<?php $this->aConf["images"] = $this->aConf["images"]."'.$this->lang.'/"; ?>';
+		# s'il faut un dossier medias différent pour chaque langue
+		if($this->getParam('lang_medias_folder')) {
+			echo '<?php $this->aConf["medias"] = $this->aConf["medias"]."'.$this->lang.'/"; ?>';
 		}
 	}
 
@@ -314,11 +319,11 @@ class plxMyMultiLingue extends plxPlugin {
 
 		echo '<?php
 		foreach($menus as $idx => $menu) {
-			if(strpos($menu[0], "static-home")===false) {
+		//	if(strpos($menu[0], "static-home")===false) {
 				if($this->plxMotor->aConf["urlrewriting"]) {
 					$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
 				}
-			}
+		//	}
 		}
 		?>';
 	}
@@ -334,7 +339,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function plxAdminEditConfiguration() {
 
-		# sauvegarde des parametres pris en compte en fonction de la langue
+		# sauvegarde des paramètres pris en compte en fonction de la langue
 		echo '<?php
 		if (preg_match("/parametres_base/",basename($_SERVER["SCRIPT_NAME"]))) {
 			$lang = $this->aConf["default_lang"];
@@ -354,12 +359,12 @@ class plxMyMultiLingue extends plxPlugin {
 			$global["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $global["racine_commentaires"]);
 		?>';
 
-		# pour ne pas écraser le chemin du dossier des images et des documents
-		if($this->getParam('lang_images_folder')) {
-			echo '<?php $global["images"] = str_replace("/'.$this->lang.'/", "/", $global["images"]); ?>';
+		# pour ne pas écraser le chemin du dossier des medias
+		if($this->getParam('lang_medias_folder')) {
+			echo '<?php $global["medias"] = str_replace("/'.$this->lang.'/", "/", $global["medias"]); ?>';
 		}
 
-		# pour tenir compte des changements de paramètrage de la langue par défaut du site
+		# pour tenir compte des changements de paramétrage de la langue par défaut du site
 		echo '<?php
 			$_SESSION["plxMyMultiLingue"]["default_lang"] = $_POST["default_lang"];
 		?>';
@@ -384,9 +389,9 @@ class plxMyMultiLingue extends plxPlugin {
 			$plxAdmin->aConf["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_commentaires"]);
 		?>';
 
-		# pour ne pas écraser le chemin du dossier des images et des documents
-		if($this->getParam('lang_images_folder')) {
-			echo '<?php $plxAdmin->aConf["images"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["images"]); ?>';
+		# pour ne pas écraser le chemin du dossier des medias
+		if($this->getParam('lang_medias_folder')) {
+			echo '<?php $plxAdmin->aConf["medias"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["medias"]); ?>';
 		}
 
 	}

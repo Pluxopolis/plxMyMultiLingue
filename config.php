@@ -30,7 +30,7 @@ if(!empty($_POST)) {
 	}
 	$plxPlugin->setParam('flags', implode(",",array_keys($array1)), 'string');
 	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
-	$plxPlugin->setParam('lang_images_folder', $_POST['lang_images_folder'], 'numeric');
+	$plxPlugin->setParam('lang_medias_folder', $_POST['lang_medias_folder'], 'numeric');
 	$plxPlugin->setParam('display', $_POST['display'], 'string');
 	$plxPlugin->setParam('redirect_ident', $_POST['redirect_ident'], 'numeric');
 
@@ -55,7 +55,7 @@ $redirect_ident = $plxPlugin->getParam('redirect_ident') == '' ? 0 : $plxPlugin-
 # Récupération et tri des langues en fonction des préférences de l'utilisateur
 $aLangs = array_merge($aFlags, array_diff(plxUtils::getLangs(), $aFlags));
 
-$lang_images_folder = $plxPlugin->getParam('lang_images_folder')=='' ? 0 : $plxPlugin->getParam('lang_images_folder');
+$lang_medias_folder = $plxPlugin->getParam('lang_medias_folder')=='' ? 0 : $plxPlugin->getParam('lang_medias_folder');
 ?>
 <p><?php $plxPlugin->lang('L_FLAGS') ?></p>
 <form action="parametres_plugin.php?p=plxMyMultiLingue" method="post" id="form_langs">
@@ -92,8 +92,8 @@ $lang_images_folder = $plxPlugin->getParam('lang_images_folder')=='' ? 0 : $plxP
 		</tbody>
 	</table>
 	<fieldset>
-		<p class="field"><label for="id_lang_images_folder"><?php echo $plxPlugin->lang('L_lang_images_folder') ?>&nbsp;:</label></p>
-		<?php plxUtils::printSelect('lang_images_folder',array('1'=>L_YES,'0'=>L_NO),$lang_images_folder) ?>
+		<p class="field"><label for="id_lang_medias_folder"><?php echo $plxPlugin->lang('L_LANG_MEDIAS_FOLDER') ?>&nbsp;:</label></p>
+		<?php plxUtils::printSelect('lang_medias_folder',array('1'=>L_YES,'0'=>L_NO),$lang_medias_folder) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL')),$display) ?>
 		<p class="field"><label for="id_redirect_ident"><?php echo $plxPlugin->lang('L_REDIRECT_IDENT') ?>&nbsp;:</label></p>
