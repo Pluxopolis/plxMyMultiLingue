@@ -4,7 +4,6 @@ $LANG = array(
 'L_SAVE'							=> 'Enregistrer',
 'L_FLAGS'							=> 'Sélectionnez les langues à gérer',
 'L_LANG_MEDIAS_FOLDER'				=> 'Utiliser un dossier medias différent pour chaque langue',
-'L_LANG_DOCUMENTS_FOLDER'			=> 'Utiliser un dossier documents différent pour chaque langue',
 'L_DISPLAY'							=> 'Type d\'affichage',
 'L_FLAG'							=> 'Drapeau',
 'L_LABEL'							=> 'Libellé',
