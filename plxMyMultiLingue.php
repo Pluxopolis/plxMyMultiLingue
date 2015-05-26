@@ -81,10 +81,27 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
-	public function ThemeEndHead() {
-		echo '<?php echo "\t<link rel=\"alternate\" hreflang=\"".$plxShow->defaultLang(false)."\" href=\"".$plxShow->plxMotor->urlRewrite($plxShow->defaultLang(false)."/".$plxShow->plxMotor->get)."\" />\n" ?>';
+
+	/**
+	 * Méthode exécutée à l'activation du plugin
+	 *
+	 * @author	Stephane F
+	 **/
+	public function onActivate() {
+		# Mise en cache du css partie administration
+		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/admin.css';
+		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingue.admin.css';
+		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
+		# Mise en cache du ccs partie visiteurs
+		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/site.css';
+		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingu.site.css';
+		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
+		# Régénération des cache css
+		$plxAdmin = plxAdmin::getInstance();
+		$plxAdmin->plxPlugins->cssCache('admin');
+		$plxAdmin->plxPlugins->cssCache('site');
 	}
-	
+
 	/**
 	 * Méthode exécutée à la désactivation du plugin
 	 *
@@ -603,5 +620,8 @@ class plxMyMultiLingue extends plxPlugin {
 		}
 	}
 
+	public function ThemeEndHead() {
+		echo '<?php echo "\t<link rel=\"alternate\" hreflang=\"".$plxShow->defaultLang(false)."\" href=\"".$plxShow->plxMotor->urlRewrite($plxShow->defaultLang(false)."/".$plxShow->plxMotor->get)."\" />\n" ?>';
+	}
 }
 ?>
