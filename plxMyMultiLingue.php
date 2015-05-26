@@ -96,7 +96,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/site.css';
 		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingu.site.css';
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
-		# Régénération des cache css
+		# Régénération des caches css
 		$plxAdmin = plxAdmin::getInstance();
 		$plxAdmin->plxPlugins->cssCache('admin');
 		$plxAdmin->plxPlugins->cssCache('site');
@@ -589,7 +589,7 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/********************************/
-	/* theme: affichage du drapeaux */
+	/* thème: affichage du drapeaux */
 	/********************************/
 
 	/**
