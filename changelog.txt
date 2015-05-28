@@ -1,10 +1,11 @@
-﻿version 0.5.1 (13/05/2015)
+﻿version 0.6 (28/05/2015)
 [+] Compatibilité PluXml 5.4
 [+] Ajout drapeau occitan
 [+] Ajout en automatique dans la partie <head> balise du type: <link rel="alternate" hreflang="en" href=”http://monsite.com/en/" />
 [+] Ajout de la langue dans le lien de la page d'accueil dans la liste des pages statiques (fct: plxShow::staticList)
 [-] Suppression gestion dossier Documents
 BUG Warning sur langue occitan non déclarée
+BUG Mauvaise page statique d'accueil en focntion de la langue sélectionnée
 
 version 0.5 (30/04/2014)
 [+] Choix affichage drapeaux ou libellés

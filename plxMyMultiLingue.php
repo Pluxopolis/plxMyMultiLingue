@@ -48,9 +48,12 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('plxMotorConstruct', 'plxMotorConstruct');
 		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
 		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
+		$this->addHook('plxMotorGetStatiques', 'plxMotorGetStatiques');
 
 		# déclaration des hooks plxAdmin
 		$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
+		$this->addHook('plxAdminEditStatiquesUpdate', 'plxAdminEditStatiquesUpdate');
+		$this->addHook('plxAdminEditStatiquesXml', 'plxAdminEditStatiquesXml');
 
 		# déclaration des hooks plxShow
 		$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
@@ -80,7 +83,6 @@ class plxMyMultiLingue extends plxPlugin {
 		define('PLX_MYMULTILINGUE', $this->getParam('flags'));
 
 	}
-
 
 	/**
 	 * Méthode exécutée à l'activation du plugin
@@ -323,6 +325,17 @@ class plxMyMultiLingue extends plxPlugin {
 		}
 	}
 
+	public function plxMotorGetStatiques() {
+		echo '<?php
+			# Recuperation du numéro la page statique d\'accueil
+			$homeStatic = plxUtils::getValue($iTags["homeStatic"][$i]);
+			$this->aStats[$number]["homeStatic"]=plxUtils::getValue($values[$homeStatic]["value"]);
+			if($this->aStats[$number]["homeStatic"]) {
+				$this->aConf["homestatic"]=$number;
+			}
+		?>';
+	}
+
 	/********************************/
 	/* core/lib/class.plx.show.php 	*/
 	/********************************/
@@ -386,6 +399,26 @@ class plxMyMultiLingue extends plxPlugin {
 			$_SESSION["plxMyMultiLingue"]["default_lang"] = $_POST["default_lang"];
 		?>';
 
+	}
+
+	/**
+	 * Méthode qui ajoute une nouvelle clé dans le fichier xml des pages statiques pour stocker
+	 * le n° de la page statique d'accueil
+	 *
+	 * @author	Stephane F
+	 **/	
+	public function plxAdminEditStatiquesUpdate() {
+		echo '<?php $this->aStats[$static_id]["homeStatic"] = intval($content["homeStatic"][0]==$static_id); ?>';
+	}
+
+	/**
+	 * Méthode qui enregistre une nouvelle clé dans le fichier xml des pages statiques pour stocker
+	 * le n° de la page statique d'accueil
+	 *
+	 * @author	Stephane F
+	 **/	
+	public function plxAdminEditStatiquesXml() {
+		echo '<?php $xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>"; ?>';
 	}
 
 	/*************************************/
