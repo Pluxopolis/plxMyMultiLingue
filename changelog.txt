@@ -1,4 +1,4 @@
-﻿versin 0.7 (25/01/2016)
+﻿version 0.7 (25/01/2016)
 [+] Affichage des langues sous forme de liste déroulante (paramétrage à partir de l'écran de configuration du plugin)
 BUG Non prise en compte de langue dans le sitemap
 
