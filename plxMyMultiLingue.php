@@ -43,6 +43,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('IndexEnd', 'IndexEnd');
 		$this->addHook('FeedEnd', 'FeedEnd');
 		$this->addHook('SitemapBegin', 'SitemapBegin');
+		$this->addHook('SitemapEnd', 'SitemapEnd');
 
 		# déclaration des hooks plxMotor
 		$this->addHook('plxMotorConstruct', 'plxMotorConstruct');
@@ -349,11 +350,9 @@ class plxMyMultiLingue extends plxPlugin {
 
 		echo '<?php
 		foreach($menus as $idx => $menu) {
-		//	if(strpos($menu[0], "static-home")===false) {
-				if($this->plxMotor->aConf["urlrewriting"]) {
-					$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
-				}
-		//	}
+			if($this->plxMotor->aConf["urlrewriting"]) {
+				$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
+			}
 		}
 		?>';
 	}
@@ -406,7 +405,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * le n° de la page statique d'accueil
 	 *
 	 * @author	Stephane F
-	 **/	
+	 **/
 	public function plxAdminEditStatiquesUpdate() {
 		echo '<?php $this->aStats[$static_id]["homeStatic"] = intval($content["homeStatic"][0]==$static_id); ?>';
 	}
@@ -416,7 +415,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * le n° de la page statique d'accueil
 	 *
 	 * @author	Stephane F
-	 **/	
+	 **/
 	public function plxAdminEditStatiquesXml() {
 		echo '<?php $xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>"; ?>';
 	}

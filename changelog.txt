@@ -1,4 +1,7 @@
-﻿version 0.6 (28/05/2015)
+﻿versin 0.7 (25/01/2016)
+BUG Non prise en compte de langue dans le sitemap
+
+version 0.6 (28/05/2015)
 [+] Compatibilité PluXml 5.4
 [+] Ajout drapeau occitan
 [+] Ajout en automatique dans la partie <head> balise du type: <link rel="alternate" hreflang="en" href=”http://monsite.com/en/" />
