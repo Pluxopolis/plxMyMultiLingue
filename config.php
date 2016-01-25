@@ -95,7 +95,7 @@ $lang_medias_folder = $plxPlugin->getParam('lang_medias_folder')=='' ? 0 : $plxP
 		<p class="field"><label for="id_lang_medias_folder"><?php echo $plxPlugin->lang('L_LANG_MEDIAS_FOLDER') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('lang_medias_folder',array('1'=>L_YES,'0'=>L_NO),$lang_medias_folder) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
-		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL')),$display) ?>
+		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL'),'listbox'=>$plxPlugin->getLang('L_LISTBOX')),$display) ?>
 		<p class="field"><label for="id_redirect_ident"><?php echo $plxPlugin->lang('L_REDIRECT_IDENT') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('redirect_ident',array('1'=>L_YES,'0'=>L_NO),$redirect_ident) ?>
 	</fieldset>

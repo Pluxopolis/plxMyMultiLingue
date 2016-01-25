@@ -7,6 +7,7 @@ $LANG = array(
 'L_DISPLAY'							=> 'Type d\'affichage',
 'L_FLAG'							=> 'Drapeau',
 'L_LABEL'							=> 'Libellé',
+'L_LISTBOX'							=> 'Liste déroulante',
 'L_ORDER'							=> 'Tri',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configuration <strong>%s</strong> absente pour les plugins',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuration <strong>%s</strong> absente pour le plugin',

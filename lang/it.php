@@ -7,6 +7,7 @@ $LANG = array(
 'L_DISPLAY'							=> 'Tipo di display',
 'L_FLAG'							=> 'Bandiera',
 'L_LABEL'							=> 'Formulazione',
+'L_LISTBOX'							=> 'Listbox',
 'L_ORDER'							=> 'Ordinamento',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configurazione <strong>%s</strong> assente per i plugin',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configurazione <strong>%s</strong> per il plugin mancante',

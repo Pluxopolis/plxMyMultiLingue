@@ -479,15 +479,23 @@ class plxMyMultiLingue extends plxPlugin {
 		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<div id="langs">';
-			foreach($this->aLangs as $lang) {
-				$sel = $this->lang==$lang ? " active" : "";
-				if($this->getParam('display')=='flag') {
-					$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
-					echo '<a href="?lang='.$lang.'">'.$img.'</a>';
-				} else {
-					echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+			if($this->getParam('display')=='listbox') {
+				echo "<select onchange=\"self.location='?lang='+this.options[this.selectedIndex].value\">";
+				foreach($this->aLangs as $idx=>$lang) {
+					$sel = $this->lang==$lang ? ' selected="selected"':'';
+					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 				}
-
+				echo '</select>';
+			} else {
+				foreach($this->aLangs as $lang) {
+					$sel = $this->lang==$lang ? " active" : "";
+					if($this->getParam('display')=='flag') {
+						$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
+						echo '<a href="?lang='.$lang.'">'.$img.'</a>';
+					} else {
+						echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+					}
+				}
 			}
 			echo '</div>';
 		}
@@ -625,7 +633,7 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 
 	/**
-	 * Méthode qui affiche les drapeaux ou le nom des langues pour la partie visiteur du site
+	 * Méthode qui affiche les drapeaux, le nom des langues ou une list déroulante pour la partie visiteur du site
 	 *
 	 * return	stdio
 	 * @author	Stephane F
@@ -636,18 +644,26 @@ class plxMyMultiLingue extends plxPlugin {
 
 		if($this->aLangs) {
 			echo '<div id="langs">';
-			echo '<ul>';
-			foreach($this->aLangs as $idx=>$lang) {
-				$sel = $this->lang==$lang ? ' active':'';
-				if($this->getParam('display')=='flag') {
-					$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />';
-					echo '<li><?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$img.'</a></li>"; ?>';
-				} else {
-					echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
+			if($this->getParam('display')=='listbox') {
+				echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite("?lang=") ?>\'+this.options[this.selectedIndex].value">';
+				foreach($this->aLangs as $idx=>$lang) {
+					$sel = $this->lang==$lang ? ' selected="selected"':'';
+					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 				}
-
+				echo '</select>';
+			} else {
+				echo '<ul>';
+				foreach($this->aLangs as $idx=>$lang) {
+					$sel = $this->lang==$lang ? ' active':'';
+					if($this->getParam('display')=='flag') {
+						$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />';
+						echo '<li><?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$img.'</a></li>"; ?>';
+					} else {
+						echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
+					}
+				}
+				echo '</ul>';
 			}
-			echo '</ul>';
 			echo '</div>';
 		}
 	}

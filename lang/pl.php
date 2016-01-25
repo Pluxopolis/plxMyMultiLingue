@@ -7,6 +7,7 @@ $LANG = array(
 'L_DISPLAY'							=> 'Typ wyświetlacza',
 'L_FLAG'							=> 'Flaga',
 'L_LABEL'							=> 'Sformułowanie',
+'L_LISTBOX'							=> 'Listbox',
 'L_ORDER'							=> 'Sortowanie',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Konfiguracja <strong>%s</strong> nieobecny dla wtyczek',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Konfiguracja <strong>%s</strong> dla brakującej wtyczce',

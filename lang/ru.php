@@ -7,6 +7,7 @@ $LANG = array(
 'L_DISPLAY'							=> 'Тип дисплея',
 'L_FLAG'							=> 'флаг',
 'L_LABEL'							=> 'формулировка',
+'L_LISTBOX'							=> 'Listbox',
 'L_ORDER'							=> 'сортировка',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Конфигурация <strong>% с </strong> отсутствует для плагинов',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Конфигурация <strong>% с </strong> пропавшего плагина',

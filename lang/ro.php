@@ -7,6 +7,7 @@ $LANG = array(
 'L_DISPLAY'							=> 'Tip display',
 'L_FLAG'							=> 'Pavilion',
 'L_LABEL'							=> 'Formulare',
+'L_LISTBOX'							=> 'Listbox',
 'L_ORDER'							=> 'Triere',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configurare <strong>%s</strong> absent pentru plugin-uri',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configurare <strong>%s</strong> pentru plugin lipsă',
