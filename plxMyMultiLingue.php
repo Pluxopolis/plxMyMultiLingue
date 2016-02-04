@@ -32,6 +32,11 @@ class plxMyMultiLingue extends plxPlugin {
 		else
 			$this->lang = $default_lang;
 
+		if(!defined('PLX_ADMIN') AND $_SERVER['QUERY_STRING']=='') {
+			header('Location: ./'.$this->lang.'/');
+			exit;
+		}
+
 		# appel du constructeur de la classe plxPlugin (obligatoire)
 		parent::__construct($this->lang);
 
@@ -50,6 +55,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
 		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
 		$this->addHook('plxMotorGetStatiques', 'plxMotorGetStatiques');
+		$this->addHook('plxMotorDemarrageNewCommentaire', 'plxMotorDemarrageNewCommentaire');
 
 		# déclaration des hooks plxAdmin
 		$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
@@ -214,7 +220,18 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 
 	/**
-	 * Méthode qui fat la redirection lors du changement de langue coté visiteur
+	 * Méthode qui rédirige vers la bonne url après soumission d'un commentaire
+	 *
+	 * @author	Stephane F
+	 **/
+	public function plxMotorDemarrageNewCommentaire() {
+		echo '<?php
+			$url = $this->urlRewrite("?'.$this->lang.'/article".intval($this->plxRecord_arts->f("numero"))."/".$this->plxRecord_arts->f("url"));
+		?>';
+	}
+
+	/**
+	 * Méthode qui fait la redirection lors du changement de langue coté visiteur
 	 *
 	 * @author	Stephane F
 	 **/

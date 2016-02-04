@@ -1,4 +1,8 @@
-﻿version 0.7 (25/01/2016)
+﻿version 0.7.1 (04/02/2016)
+BUG mauvaise redirection apres envoi d'un commentaire
+BUG mauvaise redirection à partir de la liste déroulante de sélection de la langue.
+
+version 0.7 (25/01/2016)
 [+] Affichage des langues sous forme de liste déroulante (paramétrage à partir de l'écran de configuration du plugin)
 BUG Non prise en compte de langue dans le sitemap
 
