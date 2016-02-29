@@ -1,4 +1,7 @@
-﻿version 0.7.1 (04/02/2016)
+﻿version 0.7.2 (29/02/2016)
+BUG langue du thème non chargée si appel à partir d'un lien sans passer par les drapeaux
+
+version 0.7.1 (04/02/2016)
 BUG mauvaise redirection apres envoi d'un commentaire
 BUG mauvaise redirection à partir de la liste déroulante de sélection de la langue.
 

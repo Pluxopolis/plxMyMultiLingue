@@ -319,6 +319,8 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# modification des chemins d'accès
 		echo '<?php
+
+			$this->aConf["default_lang"] ="'.$this->lang.'";
 			$this->aConf["racine_articles"] = $this->aConf["racine_articles"]."'.$this->lang.'/";
 			$this->aConf["racine_statiques"] = $this->aConf["racine_statiques"]."'.$this->lang.'/";
 			$this->aConf["racine_commentaires"] = $this->aConf["racine_commentaires"]."'.$this->lang.'/";
