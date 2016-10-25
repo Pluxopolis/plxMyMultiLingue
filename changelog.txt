@@ -1,4 +1,8 @@
-﻿version 0.7.2 (29/02/2016)
+﻿versin 0.7.3 (25/10/2016)
+Mise à jour traduction occitane (contribution Quent-in)
+BUG Non prise en compte de langue dans les liens Voir les pages statiques à partir de l'administration
+
+version 0.7.2 (29/02/2016)
 BUG langue du thème non chargée si appel à partir d'un lien sans passer par les drapeaux
 
 version 0.7.1 (04/02/2016)

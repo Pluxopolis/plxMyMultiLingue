@@ -71,11 +71,10 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# déclaration des hooks partie administration
 		$this->addHook('AdminTopEndHead', 'AdminTopEndHead');
+		$this->addHook('AdminFootEndBody', 'AdminFootEndBody');
 		$this->addHook('AdminTopBottom', 'AdminTopBottom');
 		$this->addHook('AdminSettingsAdvancedTop', 'AdminSettingsAdvancedTop');
 		$this->addHook('AdminSettingsBaseTop', 'AdminSettingsBaseTop');
-		$this->addHook('AdminArticleTop', 'AdminArticleTop');
-		$this->addHook('AdminArticleContent', 'AdminArticleContent');
 
 		# déclaration hook utilisateur à mettre dans le thème
 		$this->addHook('MyMultiLingue', 'MyMultiLingue');
@@ -521,28 +520,30 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
-	/********************************/
-	/* core/admin/article.php		*/
-	/********************************/
 
 	/**
 	 * Méthode qui démarre la bufférisation de sortie
 	 *
 	 * @author	Stephane F
 	 **/
-	public function AdminArticleTop() {
+	public function AdminTopEndHead() {
 
 		echo '<?php ob_start(); ?>';
 	}
 
 	/**
-	 * Méthode qui rajoute la langue courante dans les liens des articles
+	 * Méthode qui rajoute la langue courante dans les liens des articles et des pages statiques
 	 *
 	 * @author	Stephane F
 	 **/
-	public function AdminArticleContent() {
+	public function AdminFootEndBody() {
 
-		echo '<?php echo preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", ob_get_clean()); ?>';
+		echo '<?php
+			$output = ob_get_clean();
+			$output = preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+			$output = preg_replace("/(static[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+			echo $output;
+		?>';
 
 	}
 
