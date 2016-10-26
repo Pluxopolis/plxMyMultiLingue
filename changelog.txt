@@ -1,4 +1,4 @@
-﻿versin 0.7.3 (25/10/2016)
+﻿version 0.7.3 (25/10/2016)
 Mise à jour traduction occitane (contribution Quent-in)
 BUG Non prise en compte de langue dans les liens Voir les pages statiques à partir de l'administration
 
