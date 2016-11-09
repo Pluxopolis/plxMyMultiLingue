@@ -318,7 +318,6 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# modification des chemins d'accès
 		echo '<?php
-
 			$this->aConf["default_lang"] ="'.$this->lang.'";
 			$this->aConf["racine_articles"] = $this->aConf["racine_articles"]."'.$this->lang.'/";
 			$this->aConf["racine_statiques"] = $this->aConf["racine_statiques"]."'.$this->lang.'/";
@@ -342,6 +341,7 @@ class plxMyMultiLingue extends plxPlugin {
 		if($this->getParam('lang_medias_folder')) {
 			echo '<?php $this->aConf["medias"] = $this->aConf["medias"]."'.$this->lang.'/"; ?>';
 		}
+
 	}
 
 	public function plxMotorGetStatiques() {
@@ -540,8 +540,10 @@ class plxMyMultiLingue extends plxPlugin {
 
 		echo '<?php
 			$output = ob_get_clean();
-			$output = preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
-			$output = preg_replace("/(static[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+			if (!preg_match("/parametres/",basename($_SERVER["SCRIPT_NAME"]))) {
+				$output = preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+				$output = preg_replace("/(static[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+			}
 			echo $output;
 		?>';
 
