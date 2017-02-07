@@ -710,7 +710,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# Affichage des dépendances entre articles
 		elseif($param=="artlinks") {
 			echo '<?php
-				$ouput= "";
+				$output= "";
 				if($deplng = $plxMotor->plxRecord_arts->f("deplng")) {
 					foreach($deplng as $lang => $ident) {
 						if($lang != "'.$this->lang.'" and $ident!="") {
@@ -728,7 +728,7 @@ class plxMyMultiLingue extends plxPlugin {
 							}
 							closedir($folder);
 							# affichage
-							$output = "<li>".$img." ".$titre."</li>";
+							$output .= "<li>".$img." ".$titre."</li>";
 						}
 					}
 					if($output!="") {
