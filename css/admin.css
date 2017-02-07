@@ -4,3 +4,14 @@
 #langs a img			{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; width: 25px }
 #langs a img.active	{ padding: 2px 2px 2px 2px; border: 1px solid red; }
 #langs a.active 		{ padding: 2px 2px 2px 2px; border: 1px solid red; color: red }
+#langs {
+	position: fixed;
+	top: 10px;
+	right: 0
+}
+@media (max-width: 767px) {
+	#langs {
+		position: relative;
+	}
+}
+#form_langs img { max-width:25px; border: 1px solid #ccc; padding: 2px }

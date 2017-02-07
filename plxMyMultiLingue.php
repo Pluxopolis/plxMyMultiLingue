@@ -37,6 +37,12 @@ class plxMyMultiLingue extends plxPlugin {
 			exit;
 		}
 
+		if(isset($_SESSION['lang']) AND $this->lang!=$_SESSION['lang']) {
+			$_SESSION['lang'] = $this->lang;
+			header('Location: '.plxUtils::getRacine().$_SERVER['QUERY_STRING']);
+			exit;
+		}
+
 		# appel du constructeur de la classe plxPlugin (obligatoire)
 		parent::__construct($this->lang);
 
@@ -61,6 +67,14 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
 		$this->addHook('plxAdminEditStatiquesUpdate', 'plxAdminEditStatiquesUpdate');
 		$this->addHook('plxAdminEditStatiquesXml', 'plxAdminEditStatiquesXml');
+
+		$this->addHook('AdminArticleContent', 'AdminArticleContent');
+		$this->addHook('plxAdminEditArticleXml', 'plxAdminEditArticleXml');
+		$this->addHook('plxMotorParseArticle', 'plxMotorParseArticle');
+		$this->addHook('AdminArticlePostData', 'AdminArticlePostData');
+		$this->addHook('AdminArticleParseData', 'AdminArticleParseData');
+		$this->addHook('AdminArticleInitData', 'AdminArticleInitData');
+		$this->addHook('AdminArticlePreview', 'AdminArticlePreview');
 
 		# déclaration des hooks plxShow
 		$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
@@ -520,7 +534,6 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
-
 	/**
 	 * Méthode qui démarre la bufférisation de sortie
 	 *
@@ -656,42 +669,176 @@ class plxMyMultiLingue extends plxPlugin {
 
 	/**
 	 * Méthode qui affiche les drapeaux, le nom des langues ou une list déroulante pour la partie visiteur du site
+	 * ou les liens dépendants de l'article rédigé dans d'autres langues
 	 *
+	 * param	param	si valeur = 'artlinks' on affiche les liens dépendants de l'article
 	 * return	stdio
 	 * @author	Stephane F
 	 **/
-	public function MyMultiLingue() {
+	public function MyMultiLingue($param) {
 
-		$aLabels = unserialize($this->getParam('labels'));
-
-		if($this->aLangs) {
-			echo '<div id="langs">';
-			if($this->getParam('display')=='listbox') {
-				echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite("?lang=") ?>\'+this.options[this.selectedIndex].value">';
-				foreach($this->aLangs as $idx=>$lang) {
-					$sel = $this->lang==$lang ? ' selected="selected"':'';
-					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+		# Affichage des drapeaux
+		if($param=="") {
+			$aLabels = unserialize($this->getParam('labels'));
+			if($this->aLangs) {
+				echo '<div id="langs">';
+				if($this->getParam('display')=='listbox') {
+					echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite("?lang=") ?>\'+this.options[this.selectedIndex].value">';
+					foreach($this->aLangs as $idx=>$lang) {
+						$sel = $this->lang==$lang ? ' selected="selected"':'';
+						echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+					}
+					echo '</select>';
+				} else {
+					echo '<ul>';
+					foreach($this->aLangs as $idx=>$lang) {
+						$sel = $this->lang==$lang ? ' active':'';
+						if($this->getParam('display')=='flag') {
+							echo '<?php
+								$img = "<img class=\"lang'.$sel.'\" src=\"".$plxShow->plxMotor->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/'.$lang.'.png")."\" alt=\"'.$lang.'\" />";
+								echo "<li><a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">".$img."</a></li>";
+							?>';
+						} else {
+							echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
+						}
+					}
+					echo '</ul>';
 				}
-				echo '</select>';
-			} else {
-				echo '<ul>';
-				foreach($this->aLangs as $idx=>$lang) {
-					$sel = $this->lang==$lang ? ' active':'';
-					if($this->getParam('display')=='flag') {
-						$img = '<img class=\"lang'.$sel.'\" src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />';
-						echo '<li><?php echo "<a href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'.$img.'</a></li>"; ?>';
-					} else {
-						echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"".$plxShow->plxMotor->urlRewrite("?lang='.$lang.'")."\">'. $aLabels[$lang].'</a></li>"; ?>';
+				echo '</div>';
+			}
+		}
+		# Affichage des dépendances entre articles
+		elseif($param=="artlinks") {
+			echo '<?php
+				$ouput= "";
+				if($deplng = $plxMotor->plxRecord_arts->f("deplng")) {
+					foreach($deplng as $lang => $ident) {
+						if($lang != "'.$this->lang.'" and $ident!="") {
+							$img = "<img class=\"lang\" src=\"".$plxShow->plxMotor->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
+							# récupération du titre de l article correspondant à la langue
+							$root = PLX_ROOT.$plxMotor->aConf["racine_articles"];
+							$root = str_replace("/'.$this->lang.'/", "/".$lang."/", $root);
+							$folder = opendir($root);
+							while($file = readdir($folder)) {
+								if(preg_match("/^".$ident."(.*).xml$/", $file)) {
+									$uniqart = $plxMotor->parseArticle($root.$file);
+									$titre = "<a href=\"".$plxMotor->urlRewrite("?".$lang."/article".intval($ident)."/".$uniqart["url"])."\">".plxUtils::strCheck($uniqart["title"])."</a>";
+									break;
+								}
+							}
+							closedir($folder);
+							# affichage
+							$output = "<li>".$img." ".$titre."</li>";
+						}
+					}
+					if($output!="") {
+						echo "<ul class=\"unstyled-list\">".$output."</ul>";
 					}
 				}
-				echo '</ul>';
-			}
-			echo '</div>';
+			?>';
 		}
+
 	}
 
 	public function ThemeEndHead() {
 		echo '<?php echo "\t<link rel=\"alternate\" hreflang=\"".$plxShow->defaultLang(false)."\" href=\"".$plxShow->plxMotor->urlRewrite($plxShow->defaultLang(false)."/".$plxShow->plxMotor->get)."\" />\n" ?>';
+	}
+
+	/******************************************/
+	/* Gestion des dépendances entre articles */
+	/******************************************/
+
+	/**
+	 * Méthode qui affiche les dépendances d'articles entre les langues
+	 *
+	 * @author	Stephane F
+	 **/
+	public function AdminArticleContent() {
+
+		# affichage des drapeaux
+		if($this->aLangs) {
+			echo '<p>'.$this->getLang('L_IDENT_ARTICLE').'</p>';
+			echo '<ul class="unstyled-list">';
+			foreach($this->aLangs as $lang) {
+				if($this->lang!=$lang) {
+					echo '<?php
+					$img = "<img src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />";
+					$id = $titre = "";
+					if(isset($art["deplng"]["'.$lang.'"])) {
+						$id = $art["deplng"]["'.$lang.'"];
+						$id = intval($id)>0 ? str_pad($id,4,"0",STR_PAD_LEFT) : "";
+						# récupération du titre de l article correspondant à la langue
+						$root = PLX_ROOT.$plxAdmin->aConf["racine_articles"];
+						$root = str_replace("/'.$this->lang.'/", "/'.$lang.'/", $root);
+						$folder = opendir($root);
+						while($file = readdir($folder)) {
+							if(preg_match("/^".$id."(.*).xml$/", $file)) {
+								$uniqart = $plxAdmin->parseArticle($root.$file);
+								$titre = $uniqart["title"];
+								$titre = "<a href=\"?lang='.$lang.'&amp;a=".$id."\">".plxUtils::strCheck($titre)."</a>";
+								break;
+							}
+						}
+						closedir($folder);
+					}
+					# affichage
+					$fld = "<input value=\"".$id."\" type=\"text\" name=\"deplng['.$lang.']\" maxlenght=\"4\" size=\"2\" />";
+					echo "<li>".$img." ".$fld." ".$titre."</li>";
+					?>';
+				}
+			}
+			echo '</ul>';
+		}
+	}
+
+	/**
+	 * Méthode qui enregistre dans les articles les dépendances (identifiants par langue)
+	 *
+	 * @author	Stephane F
+	 **/
+	public function plxAdminEditArticleXml() {
+
+		if(isset($_POST['deplng'])) {
+			foreach($_POST['deplng'] as $lang => $ident) {
+				$id = intval($ident);
+				if($id>0) {
+					echo '<?php
+						$xml .= "\t<deplng><![CDATA['.$lang.",".str_pad($id,4,"0",STR_PAD_LEFT).']]></deplng>\n";
+					?>';
+				}
+
+			}
+		}
+	}
+
+	public function AdminArticlePostData() {
+		echo '<?php $art["deplng"] = $_POST["deplng"]; ?>';
+	}
+
+	public function AdminArticlePreview() {
+		echo '<?php $art["deplng"] = $_POST["deplng"]; ?>';
+	}
+
+	public function AdminArticleParseData() {
+		echo '<?php $art["deplng"] = $result["deplng"]; ?>';
+	}
+
+	public function AdminArticleInitData() {
+		echo '<?php $art["deplng"] = null; ?>';
+	}
+
+	public function plxMotorParseArticle() {
+		echo '<?php
+			if(isset($iTags["deplng"])) {
+				foreach($iTags["deplng"] as $k => $v) {
+					$key = $values[$v]["value"];
+					$val = explode(",", $key);
+					$art["deplng"][$val[0]] = $val[1];
+				}
+			} else {
+				$art["deplng"] = null;
+			}
+			?>';
 	}
 }
 ?>

@@ -5,6 +5,15 @@ Pour afficher les drapeaux permettant de sélectionner une langue, éditez par e
 &lt;?php eval($plxShow->callHook('MyMultiLingue')) ?>
 </pre>
 </p>
+
+<p style="margin-top:20px">
+Pour afficher les articles dépendants rédigés dans une autre langue, ajoutez dans le fichier article.php de votre thème la ligne suivante:
+<br /><br />
+<pre style="font-size:1.1em;margin-left:20px">
+&lt;?php eval($plxShow->callHook('MyMultiLingue', 'artlinks')) ?>
+</pre>
+</p>
+
 <p style="margin-top:20px">
 <strong>Important :<br />
 <ul>

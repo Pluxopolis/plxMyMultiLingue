@@ -1,4 +1,9 @@
-﻿version 0.7.4 (09/11/2016)
+﻿version 0.8 (07/02/2017)
+[+] Compatibilité PluCSS 1.2
+[+] Gestion des dépendances entre articles rédigés dans des langues différentes
+BUG Pas d'affichage des drapeaux coté visiteurs si PluXml installé dans un dossier
+
+version 0.7.4 (09/11/2016)
 BUG Mauvais chemin vers le dossier des articles sur l'écran: Administration > Configuration avancée
 
 version 0.7.3 (25/10/2016)
