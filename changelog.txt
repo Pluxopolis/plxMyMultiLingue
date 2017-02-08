@@ -1,6 +1,7 @@
-﻿version 0.8 (07/02/2017)
+﻿version 0.8 beta 2 (08/02/2017)
 [+] Compatibilité PluCSS 1.2
 [+] Gestion des dépendances entre articles rédigés dans des langues différentes
+[+] Amélioration de la gestion des liens 
 BUG Pas d'affichage des drapeaux coté visiteurs si PluXml installé dans un dossier
 
 version 0.7.4 (09/11/2016)

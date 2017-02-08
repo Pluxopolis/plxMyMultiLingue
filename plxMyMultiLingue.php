@@ -585,7 +585,6 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function IndexEnd() {
-
 		echo '<?php
 		if($plxMotor->aConf["urlrewriting"]) {
 			$output = str_replace($plxMotor->racine."article", $plxMotor->racine."'.$this->lang.'/article", $output);
@@ -596,18 +595,10 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxMotor->racine."feed", $plxMotor->racine."feed/'.$this->lang.'", $output);
 			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$this->lang.'/page", $output);
 			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$this->lang.'/blog", $output);
-		} else {
-			$output = str_replace("?article", "?'.$this->lang.'/article", $output);
-			$output = str_replace("?static", "?'.$this->lang.'/static", $output);
-			$output = str_replace("?categorie", "?'.$this->lang.'/categorie", $output);
-			$output = str_replace("?tag", "?'.$this->lang.'/tag", $output);
-			$output = str_replace("?archives", "?'.$this->lang.'/archives", $output);
-			$output = str_replace("?rss", "?'.$this->lang.'/rss", $output);
-			$output = str_replace("?page", "?'.$this->lang.'/page", $output);
-			$output = str_replace("?blog", "?'.$this->lang.'/blog", $output);
+			$output = str_replace($plxMotor->aConf["medias"], $plxMotor->racine.$plxMotor->aConf["medias"], $output);
+			$output = str_replace(PLX_PLUGINS, $plxMotor->aConf["racine_plugins"], $output);
 		}
 		?>';
-
 	}
 
 	/********************************/
