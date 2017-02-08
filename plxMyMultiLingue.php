@@ -20,7 +20,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function __construct($default_lang) {
-
+	
 		# récupération de la langue si présente dans l'url
 		$get = plxUtils::getGets();
 		if(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
@@ -104,6 +104,11 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
+	public function onUpdate() {
+		# demande de mise à jour du cache css
+		return array('cssCache' => true);
+	}
+
 	/**
 	 * Méthode exécutée à l'activation du plugin
 	 *
@@ -116,7 +121,7 @@ class plxMyMultiLingue extends plxPlugin {
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
 		# Mise en cache du ccs partie visiteurs
 		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/site.css';
-		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingu.site.css';
+		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingue.site.css';
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
 		# Régénération des caches css
 		$plxAdmin = plxAdmin::getInstance();
