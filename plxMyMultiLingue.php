@@ -105,6 +105,13 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
+	/**
+	 * Méthode appelée par la classe plxPlugins et executée si un fichier "upadate" est présent dans le dossier du plugin
+	 * On demande une mise à jour du cache css
+	 * Nouvelles règles css pour le plugin avec PluXml 5.6 et PluCSS 1.2 pour afficher les drapeaux dans l'action bar
+	 *
+	 * @author	Stephane F
+	 **/
 	public function onUpdate() {
 		# demande de mise à jour du cache css
 		return array('cssCache' => true);
@@ -673,6 +680,12 @@ class plxMyMultiLingue extends plxPlugin {
 	/* thème: affichage du drapeaux */
 	/********************************/
 
+	/**
+	 * Méthode qui récupère les infos sur les articles dépendants dans le tableau $plxMotor->infos_arts
+	 *
+	 * @author	Stephane F
+	 **/
+
 	public function plxMotorDemarrageEnd() {
 		echo '<?php
 		$this->infos_arts = null;
@@ -757,6 +770,11 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
+	/**
+	 * Méthode qui affiche les balises <link rel="alternate"> de tous les articles dépendants par langue
+	 *
+	 * @author	Stephane F
+	 **/
 	public function ThemeEndHead() {
 		echo '<?php
 		if($plxMotor->infos_arts) {
