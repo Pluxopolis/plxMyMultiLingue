@@ -20,7 +20,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function __construct($default_lang) {
-	
+
 		# récupération de la langue si présente dans l'url
 		$get = plxUtils::getGets();
 		if(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
@@ -59,6 +59,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# déclaration des hooks plxMotor
 		$this->addHook('plxMotorConstruct', 'plxMotorConstruct');
 		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
+		$this->addHook('plxMotorDemarrageEnd', 'plxMotorDemarrageEnd');
 		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
 		$this->addHook('plxMotorGetStatiques', 'plxMotorGetStatiques');
 		$this->addHook('plxMotorDemarrageNewCommentaire', 'plxMotorDemarrageNewCommentaire');
@@ -672,6 +673,33 @@ class plxMyMultiLingue extends plxPlugin {
 	/* thème: affichage du drapeaux */
 	/********************************/
 
+	public function plxMotorDemarrageEnd() {
+		echo '<?php
+		$this->infos_arts = null;
+		if(isset($this->plxRecord_arts) AND $this->mode=="article") {
+			if($deplng = $this->plxRecord_arts->f("deplng")) {
+				foreach($deplng as $lang => $ident) {
+					# récupération du titre de l article correspondant à la langue
+					$root = PLX_ROOT.$this->aConf["racine_articles"];
+					$root = str_replace("/'.$this->lang.'/", "/".$lang."/", $root);
+					$folder = opendir($root);
+					while($file = readdir($folder)) {
+						if(preg_match("/^".$ident."(.*).xml$/", $file)) {
+							$uniqart = $this->parseArticle($root.$file);
+							$url = $this->urlRewrite("?".$lang."/article".intval($ident)."/".$uniqart["url"]);
+							$this->infos_arts[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
+							$this->infos_arts[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($uniqart["title"])."</a>";
+							$this->infos_arts[$lang]["url"] = $url;
+							break;
+						}
+					}
+					closedir($folder);
+				}
+			}
+		}
+		?>';
+	}
+
 	/**
 	 * Méthode qui affiche les drapeaux, le nom des langues ou une list déroulante pour la partie visiteur du site
 	 * ou les liens dépendants de l'article rédigé dans d'autres langues
@@ -715,26 +743,10 @@ class plxMyMultiLingue extends plxPlugin {
 		# Affichage des dépendances entre articles
 		elseif($param=="artlinks") {
 			echo '<?php
-				$output= "";
-				if($deplng = $plxMotor->plxRecord_arts->f("deplng")) {
-					foreach($deplng as $lang => $ident) {
-						if($lang != "'.$this->lang.'" and $ident!="") {
-							$img = "<img class=\"lang\" src=\"".$plxShow->plxMotor->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
-							# récupération du titre de l article correspondant à la langue
-							$root = PLX_ROOT.$plxMotor->aConf["racine_articles"];
-							$root = str_replace("/'.$this->lang.'/", "/".$lang."/", $root);
-							$folder = opendir($root);
-							while($file = readdir($folder)) {
-								if(preg_match("/^".$ident."(.*).xml$/", $file)) {
-									$uniqart = $plxMotor->parseArticle($root.$file);
-									$titre = "<a href=\"".$plxMotor->urlRewrite("?".$lang."/article".intval($ident)."/".$uniqart["url"])."\">".plxUtils::strCheck($uniqart["title"])."</a>";
-									break;
-								}
-							}
-							closedir($folder);
-							# affichage
-							$output .= "<li>".$img." ".$titre."</li>";
-						}
+				if($plxMotor->infos_arts) {
+					$output = "";
+					foreach($plxMotor->infos_arts as $lang => $data) {
+						$output .= "<li>".$data["img"]." ".$data["link"]."</li>";
 					}
 					if($output!="") {
 						echo "<ul class=\"unstyled-list\">".$output."</ul>";
@@ -746,7 +758,13 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	public function ThemeEndHead() {
-		echo '<?php echo "\t<link rel=\"alternate\" hreflang=\"".$plxShow->defaultLang(false)."\" href=\"".$plxShow->plxMotor->urlRewrite($plxShow->defaultLang(false)."/".$plxShow->plxMotor->get)."\" />\n" ?>';
+		echo '<?php
+		if($plxMotor->infos_arts) {
+			foreach($plxMotor->infos_arts as $lang => $data) {
+				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+			}
+		}
+		?>';
 	}
 
 	/******************************************/
