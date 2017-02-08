@@ -7,11 +7,15 @@
 #langs {
 	position: fixed;
 	top: 10px;
-	right: 0
+	right: 0;
+	z-index: 999;
 }
 @media (max-width: 767px) {
 	#langs {
 		position: relative;
+		text-align: center;
+		top: 0;
+		z-index: 999;
 	}
 }
 #form_langs img { max-width:25px; border: 1px solid #ccc; padding: 2px }
