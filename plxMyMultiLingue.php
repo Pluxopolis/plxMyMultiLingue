@@ -310,6 +310,7 @@ class plxMyMultiLingue extends plxPlugin {
 				exit;
 			}
 		}
+
 	}
 
 	/**
@@ -322,6 +323,37 @@ class plxMyMultiLingue extends plxPlugin {
 		echo '<?php
 			# utilisation de preg_replace pour être sur que la chaine commence bien par la langue
 			$this->get = preg_replace("/^'.$this->lang.'\/(.*)/", "$1", $this->get);
+
+			# on recherche l url de l article - si non present dans la barre d adresse alors redirection propre
+			if($this->get AND preg_match("/^article([0-9]+)\/?([a-z0-9-]+)?/",$this->get,$capture)) {
+				if(!isset($capture[2])) {
+					$motif = "/^".str_pad($capture[1],4,"0",STR_PAD_LEFT).".(.*).xml$/";
+					if($filename = $this->plxGlob_arts->query($motif,"art","sort",0,1,"before")) {
+						 $infos = $this->artInfoFromFilename($filename[0]);
+						 header("Status: 301 Moved Permanently", false, 301);
+						 header("Location: ".$this->racine."'.$this->lang.'/".trim($this->get, "/")."/".$infos["artUrl"]);
+						 exit;
+					}
+				}
+			}
+			# on recherche l url de la page statique - si non present dans la barre d adresse alors redirection propre
+			elseif($this->get AND preg_match("/^static([0-9]+)\/?([a-z0-9-]+)?/",$this->get,$capture)) {
+				if(!isset($capture[2])) {
+					$url = $this->aStats[str_pad($capture[1],3,"0",STR_PAD_LEFT)]["url"];
+					header("Status: 301 Moved Permanently", false, 301);
+					header("Location: ".$this->racine."'.$this->lang.'/".trim($this->get, "/")."/".$url);
+					exit;
+				}
+			}
+			# on recherche l url de la categorie - si non present dans la barre d adresse alors redirection propre
+			elseif($this->get AND preg_match("/^categorie([0-9]+)\/?([a-z0-9-]+)?/",$this->get,$capture)) {
+				if(!isset($capture[2])) {
+					$url = $this->aCats[str_pad($capture[1],3,"0",STR_PAD_LEFT)]["url"];
+					header("Status: 301 Moved Permanently", false, 301);
+					header("Location: ".$this->racine."'.$this->lang.'/".trim($this->get, "/")."/".$url);
+					exit;
+				}
+			}
 		?>';
 
 	}
@@ -333,7 +365,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function ConstructLoadPlugins() {
 
-		# sauvegarde de la langue stockée dans le fichier parametres.xml dans uen variable de session
+		# sauvegarde de la langue stockée dans le fichier parametres.xml dans une variable de session
 		echo '<?php
 			if(!isset($_SESSION["plxMyMultiLingue"]["default_lang"])) {
 				$_SESSION["plxMyMultiLingue"]["default_lang"] = $this->aConf["default_lang"];
@@ -452,7 +484,12 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function plxAdminEditStatiquesUpdate() {
-		echo '<?php $this->aStats[$static_id]["homeStatic"] = intval($content["homeStatic"][0]==$static_id); ?>';
+		echo '<?php
+			if(!isset($content["homeStatic"]))
+				$this->aStats[$static_id]["homeStatic"] = "";
+			else
+				$this->aStats[$static_id]["homeStatic"] = intval($content["homeStatic"][0]==$static_id);
+		?>';
 	}
 
 	/**
@@ -462,7 +499,10 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function plxAdminEditStatiquesXml() {
-		echo '<?php $xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>"; ?>';
+		echo '<?php
+			if(!isset($static["homeStatic"])) $static["homeStatic"]=0;
+			$xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>";
+		?>';
 	}
 
 	/*************************************/
