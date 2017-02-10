@@ -11,7 +11,7 @@ $LANG = array(
 'L_ORDER'							=> 'Tria',
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configuracion <strong>%s</strong> absenta per las extensions',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuracion <strong>%s</strong> absenta per las extensions',
-'L_REDIRECT_IDENT'					=> 'Caplevar sul meteissa identificant pendent los cambiament de lenga pels articles, categorias o paginas estaticas',
-'L_IDENT_ARTICLE'					=> 'Dépendances de cet article : liste des identifiants par langue (option)',
+'L_REDIRECT_IDENT'					=> 'Caplevar sul meteis identificant pendent los cambiaments de lenga pels articles, categorias o paginas estaticas',
+'L_IDENT_ARTICLE'					=> 'Dependéncias d\'aqueste article : lista dels identificants per lenga (opcion)',
 );
 ?>
