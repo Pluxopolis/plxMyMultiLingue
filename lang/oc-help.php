@@ -15,6 +15,14 @@ Per afichar los articles dependants redigits dins una autra lenga, ajustatz dins
 </p>
 
 <p style="margin-top:20px">
+Per afichar las paginas estaticas dependants redigits dins una autra lenga, ajustatz dins lo fichièr static.php de vòstre tèma la linha seguenta :
+<br /><br />
+<pre style="font-size:1.1em;margin-left:20px">
+&lt;?php eval($plxShow->callHook('MyMultiLingue', staticlinks')) ?>
+</pre>
+</p>
+
+<p style="margin-top:20px">
 <strong>Important :<br />
 <ul>
 <li>

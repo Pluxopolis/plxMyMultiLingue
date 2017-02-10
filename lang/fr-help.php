@@ -15,6 +15,14 @@ Pour afficher les articles dépendants rédigés dans une autre langue, ajoutez 
 </p>
 
 <p style="margin-top:20px">
+Pour afficher les pages statiques dépendantes rédigés dans une autre langue, ajoutez dans le fichier static.php de votre thème la ligne suivante:
+<br /><br />
+<pre style="font-size:1.1em;margin-left:20px">
+&lt;?php eval($plxShow->callHook('MyMultiLingue', 'staticlinks')) ?>
+</pre>
+</p>
+
+<p style="margin-top:20px">
 <strong>Important :<br />
 <ul>
 <li>

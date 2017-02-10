@@ -7,9 +7,16 @@ To display flags, edit sidebar.php in your theme folder and add this following l
 </p>
 
 <p style="margin-top:20px">
-To display dependent articles written in another language, add the following line to the article.php file of your article<br /><br />
+To display dependent articles written in another language, add the following line to article.php file<br /><br />
 <pre style="font-size:1.1em;margin-left:20px">
 &lt;?php eval($plxShow->callHook('MyMultiLingue', 'artlinks')) ?>
+</pre>
+</p>
+
+<p style="margin-top:20px">
+To display dependent static pages written in another language, add the following line to static.php file<br /><br />
+<pre style="font-size:1.1em;margin-left:20px">
+&lt;?php eval($plxShow->callHook('MyMultiLingue', 'staticlinks')) ?>
 </pre>
 </p>
 
