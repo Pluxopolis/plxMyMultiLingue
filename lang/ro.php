@@ -12,6 +12,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configurare <strong>%s</strong> absent pentru plugin-uri',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configurare <strong>%s</strong> pentru plugin lipsă',
 'L_REDIRECT_IDENT'					=> 'Comutarea la același cod de identificare, atunci când schimbă limba de articole, categorii sau pagini statice',
-'L_IDENT_ARTICLE'					=> 'Dependențele acestui articol: lista de identificatori de limbă (opțional)',
+'L_IDENT_ARTICLE'					=> 'Dependențele această pagină: lista de identificatori de limbă (opțional)',
 );
 ?>

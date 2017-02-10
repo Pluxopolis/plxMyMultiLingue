@@ -13,5 +13,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Konfiguration <strong>%s</strong> für die fehlende Plugin',
 'L_REDIRECT_IDENT'					=> 'Wechseln Sie auf die gleiche Kennung beim Wechsel Sprache für Artikel, Kategorien oder statische Seiten',
 'L_IDENT_ARTICLE'					=> 'Abhängigkeiten von diesem Artikel: Liste der Bezeichner nach Sprache (optional)',
+'L_IDENT_STATIC'					=> 'Abhängigkeiten von diesem Seite: Liste der Bezeichner nach Sprache (optional)',
 );
 ?>
