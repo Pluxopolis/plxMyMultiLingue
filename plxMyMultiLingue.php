@@ -881,11 +881,16 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function ThemeEndHead() {
 		echo '<?php
-		if($plxMotor->infos_arts) {
+		if($plxMotor->mode=="article" AND $plxMotor->infos_arts) {
 			foreach($plxMotor->infos_arts as $lang => $data) {
 				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
 			}
 		}
+		if($plxMotor->mode=="static" AND $plxMotor->infos_statics) {
+			foreach($plxMotor->infos_statics as $lang => $data) {
+				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+			}
+		}		
 		?>';
 	}
 
