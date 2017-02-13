@@ -39,10 +39,9 @@ class plxMyMultiLingue extends plxPlugin {
 			exit;
 		}
 
-		if(!isset($_SESSION['lang']) OR (isset($_SESSION['lang']) AND $this->lang!=$_SESSION['lang'])) { // AND !preg_match('/core\/admin/', dirname($_SERVER['SCRIPT_NAME']))) {
+		if(!isset($_SESSION['lang']) OR (isset($_SESSION['lang']) AND $this->lang!=$_SESSION['lang'])) {
 			$_SESSION['lang'] = $this->lang;
-			header('Location: '.trim(plxUtils::getRacine().$_SERVER['QUERY_STRING'], '/').'/');
-			exit;
+			loadLang(PLX_CORE.'lang/'.$this->lang.'/core.php');
 		}
 
 		# appel du constructeur de la classe plxPlugin (obligatoire)
