@@ -27,6 +27,9 @@ class plxMyMultiLingue extends plxPlugin {
 			$file = file_get_contents(path('XMLFILE_PARAMETERS'));
 			preg_match('#name="racine_themes"><!\[CDATA\[([^\]]+)#',$file,$lang);
 			$_SESSION['default_lang'] = empty($path[1]) ? $default_lang : $path[1];
+			if(isset($_COOKIE["plxMyMultiLingue"]) and !empty($_COOKIE["plxMyMultiLingue"])) {
+				$this->lang = $_COOKIE["plxMyMultiLingue"];
+			}
 		}
 
 		# recherche de la langue dans l'url si accès à partir du sitemap
@@ -37,11 +40,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# recherche de la langue dans l'url
 		if($this->lang=="") {
 			if($_SERVER['QUERY_STRING']=='' AND !preg_match('/core\/admin/', dirname($_SERVER['SCRIPT_NAME']))) {
-				if(isset($_COOKIE["plxMyMultiLingue"]) and !empty($_COOKIE["plxMyMultiLingue"])) {
-					$this->lang = $_COOKIE["plxMyMultiLingue"];
-				} else {
 					$this->lang = $_SESSION['default_lang'];
-				}
 			} else {
 				$get = plxUtils::getGets();
 				if(isset($_GET["lang"]) AND !empty($_GET["lang"]) AND defined('PLX_ADMIN')) # changement de lang à partir de l'admin
@@ -258,11 +257,9 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function ConstructLoadPlugins() {
 
-		# sauvegarde de la langue stockée dans le fichier parametres.xml dans une variable de session
 		echo '<?php
-			if(!isset($_SESSION["plxMyMultiLingue"]["default_lang"])) {
-				$_SESSION["plxMyMultiLingue"]["default_lang"] = $this->aConf["default_lang"];
-			}
+			# initialisation n° page statique comme page d accueil (recupérée dans plxMotorGetStatiques)
+			$this->aConf["homestatic"] = "";
 		?>';
 
 		# modification des chemins d'accès
@@ -294,7 +291,7 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/**
-	 * Méthode qui récupère les dépendances des pages statiques
+	 * Méthode qui récupère les dépendances des pages statiques et la page statique comme page d'accueil
 	 *
 	 * @author	Stephane F
 	 **/
@@ -302,10 +299,15 @@ class plxMyMultiLingue extends plxPlugin {
 
 		echo '<?php
 			# Recuperation du numéro la page statique d\'accueil
-			$homeStatic = plxUtils::getValue($iTags["homeStatic"][$i]);
-			$this->aStats[$number]["homeStatic"]=plxUtils::getValue($values[$homeStatic]["value"]);
-			if($this->aStats[$number]["homeStatic"]) {
-				$this->aConf["homestatic"]=$number;
+			if(isset($iTags["homeStatic"])) {
+				$homeStatic = plxUtils::getValue($iTags["homeStatic"][$i]);
+				$this->aStats[$number]["homeStatic"] = plxUtils::getValue($values[$homeStatic]["value"]);
+				if($this->aStats[$number]["homeStatic"]) {
+					# n° de la page statique comme page d accueil
+					$this->aConf["homestatic"] = $number;
+				}
+			} else {
+				$this->aStats[$number]["homeStatic"] = 0;
 			}
 			# Recuperation des dépendances des pages statiques
 			if(isset($iTags["deplng"])) {
@@ -383,17 +385,17 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/**
-	 * Méthode qui ajoute une nouvelle clé dans le fichier xml des pages statiques pour stocker
-	 * le n° de la page statique d'accueil
+	 * Méthode qui ajoute une nouvelle clé dans le fichier xml des pages statiques pour savoir
+	 * si une page statique est configurée comme page d'accueil (valeur boolean 0/1)
 	 *
 	 * @author	Stephane F
 	 **/
 	public function plxAdminEditStatiquesUpdate() {
 		echo '<?php
 			if(!isset($content["homeStatic"]))
-				$this->aStats[$static_id]["homeStatic"] = "";
+				$this->aStats[$static_id]["homeStatic"] = 0;
 			else
-				$this->aStats[$static_id]["homeStatic"] = intval($content["homeStatic"][0]==$static_id);
+				$this->aStats[$static_id]["homeStatic"] = $content["homeStatic"][0]==$static_id;
 		?>';
 	}
 
@@ -405,7 +407,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function plxAdminEditStatiquesXml() {
 		echo '<?php
-			if(!isset($static["homeStatic"])) $static["homeStatic"]=0;
+			if(!isset($static["homeStatic"])) $static["homeStatic"] = 0;
 			$xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>";
 			# dépendances des pages statiques
 			if(!isset($static["deplng"])) $static["deplng"]="";
