@@ -551,7 +551,7 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxMotor->racine."categorie", $plxMotor->racine."'.$lang.'categorie", $output);
 			$output = str_replace($plxMotor->racine."tag", $plxMotor->racine."'.$lang.'tag", $output);
 			$output = str_replace($plxMotor->racine."archives", $plxMotor->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxMotor->racine."feed", $plxMotor->racine."feed'.$lang.'", $output);
+			$output = str_replace($plxMotor->racine."feed", $plxMotor->racine."feed/'.str_replace("/", "", $lang).'", $output);
 			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$lang.'page", $output);
 			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$lang.'blog", $output);
 			$output = str_replace($plxMotor->aConf["medias"], $plxMotor->racine.$plxMotor->aConf["medias"], $output);
@@ -571,13 +571,14 @@ class plxMyMultiLingue extends plxPlugin {
 	public function FeedEnd() {
 
 		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
+		
 		echo '<?php
 			$output = str_replace($plxFeed->racine."article", $plxFeed->racine."'.$lang.'article", $output);
 			$output = str_replace($plxFeed->racine."static", $plxFeed->racine."'.$lang.'static", $output);
 			$output = str_replace($plxFeed->racine."categorie", $plxFeed->racine."'.$lang.'categorie", $output);
 			$output = str_replace($plxFeed->racine."tag", $plxFeed->racine."'.$lang.'tag", $output);
 			$output = str_replace($plxFeed->racine."archives", $plxFeed->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxFeed->racine."feed", $plxFeed->racine."feed'.$lang.'", $output);
+			$output = str_replace($plxFeed->racine."feed", $plxFeed->racine."feed/'.str_replace("/", "", $lang).'", $output);
 			$output = str_replace($plxFeed->racine."page", $plxFeed->racine."'.$lang.'page", $output);
 			$output = str_replace($plxFeed->racine."blog", $plxFeed->racine."'.$lang.'blog", $output);
 		?>';
