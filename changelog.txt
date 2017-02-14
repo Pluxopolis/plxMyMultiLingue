@@ -5,6 +5,7 @@
 [+] Amélioration de la gestion des liens
 [+] Langue occitane (contribution Quentin)
 [+] Langue affichée dans les urls sauf pour la langue par défaut
+[+] Message d'information pour activer la réécriture d'url à l'activation du plugin
 BUG Mauvaise gestion du cookie plxMyMultiLingue pour la sauvegarde de la langue du site visité
 BUG Pas d'affichage des drapeaux coté visiteurs si PluXml installé dans un dossier
 BUG Warning à la création d'une page statique si paramètre "Page d'accueil" non renseigné
