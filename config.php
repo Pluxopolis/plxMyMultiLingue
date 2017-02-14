@@ -37,6 +37,7 @@ if(!empty($_POST)) {
 	$plxPlugin->mkDirs();
 	$plxPlugin->saveParams();
 	# réinitialisation des variables de sessions dépendantes de la langues
+	unset($_SESSION['default_lang']);	
 	unset($_SESSION['lang']);
 	unset($_SESSION['medias']);
 	unset($_SESSION['folder']);
