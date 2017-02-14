@@ -34,7 +34,10 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# recherche de la langue dans l'url si accès à partir du sitemap
 		if(preg_match("/sitemap\.php\??([a-zA-Z]+)?/", $_SERVER["REQUEST_URI"], $capture)) {
-			$this->lang = $capture[1];
+			if(isset($capture[1])) 
+				$this->lang = $capture[1];
+			else
+				$this->lang = $_SESSION['default_lang'];
 		}
 
 		# recherche de la langue dans l'url
