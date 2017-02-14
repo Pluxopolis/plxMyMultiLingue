@@ -13,5 +13,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Konfiguracja <strong>%s</strong> dla brakującej wtyczce',
 'L_REDIRECT_IDENT'					=> 'Przełączyć się do tego samego identyfikatora przy zmianie języka artykułów, kategorii lub stron statycznych',
 'L_IDENT_ARTICLE'					=> 'Zależności aktualizacja: lista identyfikatorów języka (opcjonalnie)',
+'L_ERR_URL_REWRITING'				=> 'Proszę włączyć przepisywanie URL (Ustawienia > Ustawienia zaawansowane > Włącz przepisywanie URL > Tak)',
 );
 ?>

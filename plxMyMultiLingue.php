@@ -495,6 +495,13 @@ class plxMyMultiLingue extends plxPlugin {
 			echo '</div>';
 		}
 
+		$string = '
+		if($plxAdmin->aConf["urlrewriting"]!="1") {
+			echo "<p class=\"warning\">Plugin MyMultiLingue<br />'.$this->getLang("L_ERR_URL_REWRITING").'</p>";
+			plxMsg::Display();
+		}';
+		echo '<?php '.$string.' ?>';
+
 	}
 
 	/**
@@ -544,7 +551,7 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxMotor->racine."categorie", $plxMotor->racine."'.$lang.'categorie", $output);
 			$output = str_replace($plxMotor->racine."tag", $plxMotor->racine."'.$lang.'tag", $output);
 			$output = str_replace($plxMotor->racine."archives", $plxMotor->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxMotor->racine."feed", $plxMotor->racine."feed/'.$lang.'", $output);
+			$output = str_replace($plxMotor->racine."feed", $plxMotor->racine."feed'.$lang.'", $output);
 			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$lang.'page", $output);
 			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$lang.'blog", $output);
 			$output = str_replace($plxMotor->aConf["medias"], $plxMotor->racine.$plxMotor->aConf["medias"], $output);
@@ -564,17 +571,15 @@ class plxMyMultiLingue extends plxPlugin {
 	public function FeedEnd() {
 
 		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
-
 		echo '<?php
 			$output = str_replace($plxFeed->racine."article", $plxFeed->racine."'.$lang.'article", $output);
 			$output = str_replace($plxFeed->racine."static", $plxFeed->racine."'.$lang.'static", $output);
 			$output = str_replace($plxFeed->racine."categorie", $plxFeed->racine."'.$lang.'categorie", $output);
 			$output = str_replace($plxFeed->racine."tag", $plxFeed->racine."'.$lang.'tag", $output);
 			$output = str_replace($plxFeed->racine."archives", $plxFeed->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxFeed->racine."feed", $plxFeed->racine."feed/'.$lang.'", $output);
+			$output = str_replace($plxFeed->racine."feed", $plxFeed->racine."feed'.$lang.'", $output);
 			$output = str_replace($plxFeed->racine."page", $plxFeed->racine."'.$lang.'page", $output);
 			$output = str_replace($plxFeed->racine."blog", $plxFeed->racine."'.$lang.'blog", $output);
-		}
 		?>';
 
 	}

@@ -13,5 +13,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configurare <strong>%s</strong> pentru plugin lipsă',
 'L_REDIRECT_IDENT'					=> 'Comutarea la același cod de identificare, atunci când schimbă limba de articole, categorii sau pagini statice',
 'L_IDENT_ARTICLE'					=> 'Dependențele această pagină: lista de identificatori de limbă (opțional)',
+'L_ERR_URL_REWRITING'				=> 'Vă rugăm să activați rescrierea URL-ul (Setări > Setare avansată > Activare rescrierea URL-ul > Da)',
 );
 ?>

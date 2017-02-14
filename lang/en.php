@@ -13,5 +13,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGINS'			=> 'Missing <strong>%s</strong> plugin configuration',
 'L_REDIRECT_IDENT'					=> 'Switch to the same ident when changing language for articles, categories or static pages',
 'L_IDENT_ARTICLE'					=> 'Dependencies of this static page: list of identifiers by language (optional)',
+'L_ERR_URL_REWRITING'				=> 'Please enable url rewriting (Settings > Advanced configuration > Enable url rewriting > Yes)',
 );
 ?>

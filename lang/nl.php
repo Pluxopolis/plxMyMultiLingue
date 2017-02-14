@@ -13,5 +13,6 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuratie <strong>%s</strong> voor de ontbrekende plugin',
 'L_REDIRECT_IDENT'					=> 'Schakel over naar dezelfde identificatie bij het wijzigen van de taal voor artikelen, categorieën of statische pagina\'s',
 'L_IDENT_ARTICLE'					=> 'Afhankelijkheden van deze pagina: lijst van id\'s per taal (optioneel)',
+'L_ERR_URL_REWRITING'				=> 'Schakel url rewriting (Instellingen > Geavanceerde instellingen > inschakelen URL herschrijven > Yes)',
 );
 ?>
