@@ -1,9 +1,11 @@
-﻿version 0.8 (13/02/2017)
+﻿version 0.8 (14/02/2017)
 [+] Compatibilité PluCSS 1.2
 [+] Gestion des dépendances entre articles rédigés dans des langues différentes
 [+] Gestion des dépendances entre les pages statiques rédigées dans des langues différentes
 [+] Amélioration de la gestion des liens
 [+] Langue occitane (contribution Quentin)
+[+] Langue affichée dans les urls sauf pour la langue par défaut
+BUG Mauvaise gestion du cookie plxMyMultiLingue pour la sauvegarde de la langue du site visité
 BUG Pas d'affichage des drapeaux coté visiteurs si PluXml installé dans un dossier
 BUG Warning à la création d'une page statique si paramètre "Page d'accueil" non renseigné
 
