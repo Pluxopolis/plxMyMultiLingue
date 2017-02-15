@@ -50,8 +50,6 @@ class plxMyMultiLingue extends plxPlugin {
 					$this->lang = $_GET["lang"];
 				elseif(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
 					$this->lang = $capture[1];
-				elseif(isset($_COOKIE["plxMyMultiLingue"]))
-					$this->lang = $_COOKIE["plxMyMultiLingue"];
 				else
 					$this->lang = $_SESSION['default_lang'];
 			}
