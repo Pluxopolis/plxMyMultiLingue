@@ -1,4 +1,4 @@
-﻿version 0.8 (14/02/2017)
+﻿version 0.8 (15/02/2017)
 [+] Compatibilité PluCSS 1.2
 [+] Gestion des dépendances entre articles rédigés dans des langues différentes
 [+] Gestion des dépendances entre les pages statiques rédigées dans des langues différentes
