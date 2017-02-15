@@ -42,17 +42,15 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# recherche de la langue dans l'url
 		if($this->lang=="") {
-			if($_SERVER['QUERY_STRING']=='' AND !preg_match('/core\/admin/', dirname($_SERVER['SCRIPT_NAME']))) {
-					$this->lang = $_SESSION['default_lang'];
-			} else {
-				$get = plxUtils::getGets();
-				if(isset($_GET["lang"]) AND !empty($_GET["lang"]) AND defined('PLX_ADMIN')) # changement de lang à partir de l'admin
-					$this->lang = $_GET["lang"];
-				elseif(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
-					$this->lang = $capture[1];
-				else
-					$this->lang = $_SESSION['default_lang'];
-			}
+			$get = plxUtils::getGets();
+			if(isset($_GET["lang"]) AND !empty($_GET["lang"]) AND defined('PLX_ADMIN'))
+				$this->lang = $_GET["lang"];
+			elseif(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
+				$this->lang = $capture[1];
+			elseif(defined('PLX_ADMIN'))
+				$this->lang = $_SESSION['lang'];
+			else
+				$this->lang = $_SESSION['default_lang'];
 		}
 
 		# appel du constructeur de la classe plxPlugin (obligatoire)
@@ -64,7 +62,8 @@ class plxMyMultiLingue extends plxPlugin {
 		$_SESSION['lang'] = $this->lang;
 		loadLang(PLX_CORE.'lang/'.$this->lang.'/core.php');
 		# stockage du cookie avec la langue courante - expiration 30 jours
-		setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30, dirname($_SERVER['SCRIPT_NAME']));
+		if(!defined('PLX_ADMIN'))
+			setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30, dirname($_SERVER['SCRIPT_NAME']));
 
 		# droits pour accéder à la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
