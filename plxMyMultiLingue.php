@@ -34,7 +34,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# recherche de la langue dans l'url si accès à partir du sitemap
 		if(preg_match("/sitemap\.php\??([a-zA-Z]+)?/", $_SERVER["REQUEST_URI"], $capture)) {
-			if(isset($capture[1])) 
+			if(isset($capture[1]))
 				$this->lang = $capture[1];
 			else
 				$this->lang = $_SESSION['default_lang'];
@@ -259,6 +259,12 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function ConstructLoadPlugins() {
+
+		echo '<?php
+			if(!isset($_SESSION["plxMyMultiLingue"]["default_lang"])) {
+				$_SESSION["plxMyMultiLingue"]["default_lang"] = $this->aConf["default_lang"];
+			}
+		?>';
 
 		echo '<?php
 			# initialisation n° page statique comme page d accueil (recupérée dans plxMotorGetStatiques)
@@ -574,7 +580,7 @@ class plxMyMultiLingue extends plxPlugin {
 	public function FeedEnd() {
 
 		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
-		
+
 		echo '<?php
 			$output = str_replace($plxFeed->racine."article", $plxFeed->racine."'.$lang.'article", $output);
 			$output = str_replace($plxFeed->racine."static", $plxFeed->racine."'.$lang.'static", $output);
