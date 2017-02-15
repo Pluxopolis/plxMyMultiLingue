@@ -13,7 +13,7 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuration <strong>%s</strong> absente pour le plugin',
 'L_REDIRECT_IDENT'					=> 'Basculer sur le même identifiant lors du changement de langue pour les articles, catégories ou pages statiques',
 'L_IDENT_ARTICLE'					=> 'Dépendances de cet article : liste des identifiants par langue (option)',
-'L_IDENT_STATIC'					=> 'Dépendances de cet page : liste des identifiants par langue (option)',
+'L_IDENT_STATIC'					=> 'Dépendances de cette page : liste des identifiants par langue (option)',
 'L_ERR_URL_REWRITING'				=> 'Veuillez activer la réécriture d\'url (Paramètres > Configuration avancée > Activer la réécriture d\'URL > Oui)',
 );
 ?>

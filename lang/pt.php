@@ -12,7 +12,8 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGINS'			=> 'Configuração <strong>%s</strong> ausente por plugins',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuração <strong>%s</strong> para o plugin ausente',
 'L_REDIRECT_IDENT'					=> 'Mudar para o mesmo identificador quando mudar idioma para artigos, categorias ou páginas estáticas',
-'L_IDENT_ARTICLE'					=> 'Dependências nesta página: lista de identificadores por idioma (opcional)',
+'L_IDENT_ARTICLE'					=> 'Dependências neste artigo: lista de identificadores por idioma (opcional)',
+'L_IDENT_STATIC'					=> 'Dependências nesta página: lista de identificadores por idioma (opcional)',
 'L_ERR_URL_REWRITING'				=> 'Ative url reescrever (Configurações > Configuração avançada > Ativar URL reescrever > Sim)',
 );
 ?>

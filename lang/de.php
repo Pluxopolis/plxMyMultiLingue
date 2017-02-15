@@ -12,8 +12,8 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGINS'			=> 'Konfiguration <strong>%s</strong> abwesend Plugins',
 'L_MISSING_CONFIG_PLUGIN'			=> 'Konfiguration <strong>%s</strong> für die fehlende Plugin',
 'L_REDIRECT_IDENT'					=> 'Wechseln Sie auf die gleiche Kennung beim Wechsel Sprache für Artikel, Kategorien oder statische Seiten',
-'L_IDENT_ARTICLE'					=> 'Abhängigkeiten von diesem Artikel: Liste der Bezeichner nach Sprache (optional)',
-'L_IDENT_STATIC'					=> 'Abhängigkeiten von diesem Seite: Liste der Bezeichner nach Sprache (optional)',
+'L_IDENT_ARTICLE'					=> 'Abhängigkeiten von diesem artikel: Liste der Bezeichner nach Sprache (optional)',
+'L_IDENT_STATIC'					=> 'Abhängigkeiten von diesem seite: Liste der Bezeichner nach Sprache (optional)',
 'L_ERR_URL_REWRITING'				=> 'Bitte aktivieren Sie URL-Rewriting (Einstellungen > Erweiterte Einstellungen > Aktivieren URL-Rewriting > Ja)',
 );
 ?>
