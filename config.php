@@ -37,8 +37,15 @@ if(!empty($_POST)) {
 	$plxPlugin->mkDirs();
 	$plxPlugin->saveParams();
 	# réinitialisation des variables de sessions dépendantes de la langues
-	unset($_SESSION['default_lang']);	
-	unset($_SESSION['lang']);
+	if(isset($array1) AND !empty($array1)) {
+		$lg = array_keys($array1);
+		$_SESSION['default_lang'] = $lg[0];
+		$_SESSION['lang'] = $lg[0];
+	} else {
+		unset($_SESSION['default_lang']);
+		unset($_SESSION['lang']);
+	}
+	unset($_COOKIE["plxMyMultiLingue"]);
 	unset($_SESSION['medias']);
 	unset($_SESSION['folder']);
 	header('Location: parametres_plugin.php?p=plxMyMultiLingue');
