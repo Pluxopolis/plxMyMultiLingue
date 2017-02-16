@@ -676,37 +676,35 @@ class plxMyMultiLingue extends plxPlugin {
 			}
 			if($deplng) {
 				foreach($deplng as $lang => $id) {
-					if($lang!="'.$this->lang.'") {
-						# récupération du titre de la page statique correspondant à la langue
-						$root = PLX_ROOT.PLX_CONFIG_PATH;
-						$root = str_replace("/'.$this->lang.'/", $lang, $root);
-						$filename=$root.$lang."/statiques.xml";
-						if(is_file($filename)) {
-							# Mise en place du parseur XML
-							$data = implode("",file($filename));
-							$parser = xml_parser_create(PLX_CHARSET);
-							xml_parser_set_option($parser,XML_OPTION_CASE_FOLDING,0);
-							xml_parser_set_option($parser,XML_OPTION_SKIP_WHITE,0);
-							xml_parse_into_struct($parser,$data,$values,$iTags);
-							xml_parser_free($parser);
-							if(isset($iTags["statique"]) AND isset($iTags["name"])) {
-								$nb = sizeof($iTags["name"]);
-								$size=ceil(sizeof($iTags["statique"])/$nb);
-								for($i=0;$i<$nb;$i++) {
-									$attributes = $values[$iTags["statique"][$i*$size]]["attributes"];
-									$number = $attributes["number"];
-									if($number==$id) {
-										$active = intval($attributes["active"]);
-										if($active) {
-											$url = "/static".intval($id)."/".strtolower($attributes["url"]);
-											if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
-											$title = plxUtils::getValue($values[$iTags["name"][$i]]["value"]);
-											$this->infos_statics[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
-											$this->infos_statics[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($title)."</a>";
-											$this->infos_statics[$lang]["url"] = $url;
-										}
-										break;
+					# récupération du titre de la page statique correspondant à la langue
+					$root = PLX_ROOT.PLX_CONFIG_PATH;
+					$root = str_replace("/'.$this->lang.'/", $lang, $root);
+					$filename=$root.$lang."/statiques.xml";
+					if(is_file($filename)) {
+						# Mise en place du parseur XML
+						$data = implode("",file($filename));
+						$parser = xml_parser_create(PLX_CHARSET);
+						xml_parser_set_option($parser,XML_OPTION_CASE_FOLDING,0);
+						xml_parser_set_option($parser,XML_OPTION_SKIP_WHITE,0);
+						xml_parse_into_struct($parser,$data,$values,$iTags);
+						xml_parser_free($parser);
+						if(isset($iTags["statique"]) AND isset($iTags["name"])) {
+							$nb = sizeof($iTags["name"]);
+							$size=ceil(sizeof($iTags["statique"])/$nb);
+							for($i=0;$i<$nb;$i++) {
+								$attributes = $values[$iTags["statique"][$i*$size]]["attributes"];
+								$number = $attributes["number"];
+								if($number==$id) {
+									$active = intval($attributes["active"]);
+									if($active) {
+										$url = "/static".intval($id)."/".$attributes["url"];
+										if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
+										$title = plxUtils::getValue($values[$iTags["name"][$i]]["value"]);
+										$this->infos_statics[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
+										$this->infos_statics[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($title)."</a>";
+										$this->infos_statics[$lang]["url"] = $url;
 									}
+									break;
 								}
 							}
 						}
@@ -799,11 +797,19 @@ class plxMyMultiLingue extends plxPlugin {
 	public function ThemeEndHead() {
 		echo '<?php
 		if($plxMotor->mode=="article" AND $plxMotor->infos_arts) {
+			# affichage du hreflang pour la langue courante
+			$url = "/article".intval($plxMotor->cible)."/".$plxMotor->plxRecord_arts->f("url");
+			if($lang!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
+			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
 			foreach($plxMotor->infos_arts as $lang => $data) {
 				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
 			}
 		}
 		if($plxMotor->mode=="static" AND $plxMotor->infos_statics) {
+			# affichage du hreflang pour la langue courante
+			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
+			if($lang!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
+			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
 			foreach($plxMotor->infos_statics as $lang => $data) {
 				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
 			}
