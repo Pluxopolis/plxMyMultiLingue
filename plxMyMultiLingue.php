@@ -516,7 +516,6 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function AdminTopEndHead() {
-
 		echo '<?php ob_start(); ?>';
 	}
 
@@ -799,7 +798,7 @@ class plxMyMultiLingue extends plxPlugin {
 		if($plxMotor->mode=="article" AND $plxMotor->infos_arts) {
 			# affichage du hreflang pour la langue courante
 			$url = "/article".intval($plxMotor->cible)."/".$plxMotor->plxRecord_arts->f("url");
-			if($lang!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
+			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
 			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
 			foreach($plxMotor->infos_arts as $lang => $data) {
 				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
@@ -808,7 +807,7 @@ class plxMyMultiLingue extends plxPlugin {
 		if($plxMotor->mode=="static" AND $plxMotor->infos_statics) {
 			# affichage du hreflang pour la langue courante
 			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
-			if($lang!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
+			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
 			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
 			foreach($plxMotor->infos_statics as $lang => $data) {
 				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
