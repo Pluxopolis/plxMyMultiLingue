@@ -3,7 +3,8 @@
 $LANG = array(
 'L_SAVE'							=> 'Registru',
 'L_FLAGS'							=> 'Selectați limbile pentru a gestiona',
-'L_LANG_MEDIAS_FOLDER'				=> 'Folosind un alt folder imagine pentru fiecare limbă',
+'L_LANG_MEDIAS_FOLDER'				=> 'Utilizați un dosar medias diferit pentru fiecare langue',
+'L_LANG_STYLE'						=> 'Utilizați o temă diferită pentru fiecare langue',
 'L_DISPLAY'							=> 'Tip display',
 'L_FLAG'							=> 'Pavilion',
 'L_LABEL'							=> 'Formulare',

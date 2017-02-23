@@ -3,7 +3,8 @@
 $LANG = array(
 'L_SAVE'							=> 'Registreren',
 'L_FLAGS'							=> 'Selecteer talen te beheren',
-'L_LANG_MEDIAS_FOLDER'				=> 'Met behulp van een andere map met afbeeldingen voor elke taal',
+'L_LANG_MEDIAS_FOLDER'				=> 'Gebruik een andere map media voor elke langue',
+'L_LANG_STYLE'						=> 'Gebruik een ander thema voor elke langue',
 'L_DISPLAY'							=> 'Display-type',
 'L_FLAG'							=> 'Vlag',
 'L_LABEL'							=> 'Bewoordingen',

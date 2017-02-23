@@ -3,7 +3,8 @@
 $LANG = array(
 'L_SAVE'							=> 'Zarejestrować',
 'L_FLAGS'							=> 'Wybierz języki do zarządzania',
-'L_LANG_MEDIAS_FOLDER'				=> 'Korzystanie inny folder dla każdego języka obrazu',
+'L_LANG_MEDIAS_FOLDER'				=> 'Użyj innego folderu Medias dla każdego langue',
+'L_LANG_STYLE'						=> 'Użyj innego motywu dla każdej langue',
 'L_DISPLAY'							=> 'Typ wyświetlacza',
 'L_FLAG'							=> 'Flaga',
 'L_LABEL'							=> 'Sformułowanie',

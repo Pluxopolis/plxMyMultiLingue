@@ -1,4 +1,4 @@
-﻿version 0.8 (15/02/2017)
+﻿version 0.8 (23/02/2017)
 [+] Compatibilité PluCSS 1.2
 [+] Gestion des dépendances entre articles rédigés dans des langues différentes
 [+] Gestion des dépendances entre les pages statiques rédigées dans des langues différentes
@@ -6,6 +6,7 @@
 [+] Langue occitane (contribution Quentin)
 [+] Langue affichée dans les urls sauf pour la langue par défaut
 [+] Message d'information pour activer la réécriture d'url à l'activation du plugin
+[+] Configuration plugin > Utiliser un thème différent pour chaque langue
 BUG Mauvaise gestion du cookie plxMyMultiLingue pour la sauvegarde de la langue du site visité
 BUG Pas d'affichage des drapeaux coté visiteurs si PluXml installé dans un dossier
 BUG Warning à la création d'une page statique si paramètre "Page d'accueil" non renseigné

@@ -3,7 +3,8 @@
 $LANG = array(
 'L_SAVE'							=> 'Registrar',
 'L_FLAGS'							=> 'Selecione os idiomas de gerir',
-'L_LANG_MEDIAS_FOLDER'				=> 'Usando uma pasta de imagem diferente para cada idioma',
+'L_LANG_MEDIAS_FOLDER'				=> 'Use uma pasta de mídia diferente para cada idioma',
+'L_LANG_STYLE'						=> 'Use um tema diferente para cada idioma',
 'L_DISPLAY'							=> 'Tipo de exposição',
 'L_FLAG'							=> 'Bandeira',
 'L_LABEL'							=> 'Redação',

@@ -278,6 +278,14 @@ class plxMyMultiLingue extends plxPlugin {
 				$this->aConf["description"] = "'.$this->getParam("description_".$this->lang).'";
 				$this->aConf["meta_description"] = "'.$this->getParam("meta_description_".$this->lang).'";
 				$this->aConf["meta_keywords"] = "'.$this->getParam("meta_keywords_".$this->lang).'";
+
+				if('.$this->getParam("lang_style").') {
+					$theme = "'.$this->getParam("style_".$this->lang).'";
+					if($theme!="" AND is_dir(PLX_ROOT.$this->aConf["racine_themes"].$theme)) {
+						$this->aConf["style"] = $theme;
+						$this->style = $theme;
+					}
+				}
 			}
 		?>';
 
@@ -352,7 +360,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# sauvegarde des paramètres pris en compte en fonction de la langue
 		echo '<?php
-		if (preg_match("/parametres_base/",basename($_SERVER["SCRIPT_NAME"]))) {
+		if(preg_match("/parametres_base/",basename($_SERVER["SCRIPT_NAME"]))) {
 			$lang = $this->aConf["default_lang"];
 			$plugin = $this->plxPlugins->aPlugins["plxMyMultiLingue"];
 			$plugin->setParam("title_".$lang, $_POST["title"], "cdata");
@@ -362,6 +370,20 @@ class plxMyMultiLingue extends plxPlugin {
 			$plugin->saveParams();
 		}
 		?>';
+
+		# theme différent pour chaque langue
+		if($this->getParam("lang_style")) {
+			echo '<?php
+				if(preg_match("/parametres_themes/",basename($_SERVER["SCRIPT_NAME"]))) {
+					$lang = $this->aConf["default_lang"];
+					$plugin = $this->plxPlugins->aPlugins["plxMyMultiLingue"];
+					$plugin->setParam("style_".$lang, $_POST["style"], "cdata");
+					$plugin->saveParams();
+					# pour ne pas écraser le style de l installation
+					$_POST["style"] = $plxAdmin->aConf["style"];
+				}
+			?>';
+		}
 
 		# pour ne pas écraser les chemins racine_articles, racine_statiques et racine_commentaires
 		echo '<?php

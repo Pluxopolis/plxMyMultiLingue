@@ -31,6 +31,7 @@ if(!empty($_POST)) {
 	$plxPlugin->setParam('flags', implode(",",array_keys($array1)), 'string');
 	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
 	$plxPlugin->setParam('lang_medias_folder', $_POST['lang_medias_folder'], 'numeric');
+	$plxPlugin->setParam('lang_style', $_POST['lang_style'], 'numeric');
 	$plxPlugin->setParam('display', $_POST['display'], 'string');
 	$plxPlugin->setParam('redirect_ident', $_POST['redirect_ident'], 'numeric');
 
@@ -45,7 +46,6 @@ if(!empty($_POST)) {
 		unset($_SESSION['default_lang']);
 		unset($_SESSION['lang']);
 	}
-	unset($_COOKIE["plxMyMultiLingue"]);
 	unset($_SESSION['medias']);
 	unset($_SESSION['folder']);
 	header('Location: parametres_plugin.php?p=plxMyMultiLingue');
@@ -64,6 +64,7 @@ $redirect_ident = $plxPlugin->getParam('redirect_ident') == '' ? 0 : $plxPlugin-
 $aLangs = array_merge($aFlags, array_diff(plxUtils::getLangs(), $aFlags));
 
 $lang_medias_folder = $plxPlugin->getParam('lang_medias_folder')=='' ? 0 : $plxPlugin->getParam('lang_medias_folder');
+$lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam('lang_style');
 ?>
 <p><?php $plxPlugin->lang('L_FLAGS') ?></p>
 <form action="parametres_plugin.php?p=plxMyMultiLingue" method="post" id="form_langs">
@@ -102,6 +103,8 @@ $lang_medias_folder = $plxPlugin->getParam('lang_medias_folder')=='' ? 0 : $plxP
 	<fieldset>
 		<p class="field"><label for="id_lang_medias_folder"><?php echo $plxPlugin->lang('L_LANG_MEDIAS_FOLDER') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('lang_medias_folder',array('1'=>L_YES,'0'=>L_NO),$lang_medias_folder) ?>
+		<p class="field"><label for="id_lang_style"><?php echo $plxPlugin->lang('L_LANG_STYLE') ?>&nbsp;:</label></p>
+		<?php plxUtils::printSelect('lang_style',array('1'=>L_YES,'0'=>L_NO),$lang_style) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL'),'listbox'=>$plxPlugin->getLang('L_LISTBOX')),$display) ?>
 		<p class="field"><label for="id_redirect_ident"><?php echo $plxPlugin->lang('L_REDIRECT_IDENT') ?>&nbsp;:</label></p>

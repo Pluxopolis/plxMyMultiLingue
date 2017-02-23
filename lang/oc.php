@@ -4,6 +4,7 @@ $LANG = array(
 'L_SAVE'							=> 'Enregistrar',
 'L_FLAGS'							=> 'Seleccionatz las lenga a gerir',
 'L_LANG_MEDIAS_FOLDER'				=> 'Utilizar un dorsièr mèdias diferent per cada lenga',
+'L_LANG_STYLE'						=> 'Utilizar un tèma diferent per cada lenga',
 'L_DISPLAY'							=> 'Tipe d\'afichatge',
 'L_FLAG'							=> 'Bandièra',
 'L_LABEL'							=> 'Redaccion',

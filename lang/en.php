@@ -4,6 +4,7 @@ $LANG = array(
 'L_SAVE'							=> 'Save',
 'L_FLAGS'							=> 'Select languages to manage',
 'L_LANG_MEDIAS_FOLDER'				=> 'Use a different medias folder for each langue',
+'L_LANG_STYLE'						=> 'Use a different theme for each langue',
 'L_DISPLAY'							=> 'Display',
 'L_FLAG'							=> 'Flag',
 'L_LABEL'							=> 'Label',
