@@ -27,9 +27,6 @@ class plxMyMultiLingue extends plxPlugin {
 			$file = file_get_contents(path('XMLFILE_PARAMETERS'));
 			preg_match('#name="racine_themes"><!\[CDATA\[([^\]]+)#',$file,$lang);
 			$_SESSION['default_lang'] = empty($path[1]) ? $default_lang : $path[1];
-			if(isset($_COOKIE["plxMyMultiLingue"]) and !empty($_COOKIE["plxMyMultiLingue"])) {
-				$this->lang = $_COOKIE["plxMyMultiLingue"];
-			}
 		}
 
 		# recherche de la langue dans l'url si accès à partir du sitemap
@@ -47,7 +44,7 @@ class plxMyMultiLingue extends plxPlugin {
 				$this->lang = $_GET["lang"];
 			elseif(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
 				$this->lang = $capture[1];
-			elseif(defined('PLX_ADMIN'))
+			elseif(defined('PLX_ADMIN') AND isset($_SESSION['lang']))
 				$this->lang = $_SESSION['lang'];
 			else
 				$this->lang = $_SESSION['default_lang'];
@@ -61,9 +58,6 @@ class plxMyMultiLingue extends plxPlugin {
 		# mémorisation de la langue et chargement du fichier de traduction core.php
 		$_SESSION['lang'] = $this->lang;
 		loadLang(PLX_CORE.'lang/'.$this->lang.'/core.php');
-		# stockage du cookie avec la langue courante - expiration 30 jours
-		if(!defined('PLX_ADMIN'))
-			setcookie("plxMyMultiLingue", $this->lang, time()+3600*24*30, dirname($_SERVER['SCRIPT_NAME']));
 
 		# droits pour accéder à la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
@@ -165,8 +159,6 @@ class plxMyMultiLingue extends plxPlugin {
 		unset($_SESSION['medias']);
 		unset($_SESSION['folder']);
 		unset($_SESSION['currentfolder']);
-		unset($_COOKIE['plxMyMultiLingue']);
-		setcookie('plxMyMultiLingue', '', time() - 3600);
 	}
 
 	/**
@@ -559,7 +551,6 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxMotor->racine."feed/", $plxMotor->racine."feed/'.$lang.'", $output);
 			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$lang.'page", $output);
 			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$lang.'blog", $output);
-			$output = str_replace($plxMotor->aConf["medias"], $plxMotor->racine.$plxMotor->aConf["medias"], $output);
 			$output = str_replace(PLX_PLUGINS, $plxMotor->aConf["racine_plugins"], $output);
 		?>';
 	}
