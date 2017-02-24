@@ -566,6 +566,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
 
 		echo '<?php
+			$output = preg_replace(\'#href="\'.$plxMotor->racine.\'"#\', \'href="\'.$plxMotor->racine.\''.$lang.'"\', $output);
 			$output = str_replace($plxMotor->racine."article", $plxMotor->racine."'.$lang.'article", $output);
 			$output = str_replace($plxMotor->racine."static", $plxMotor->racine."'.$lang.'static", $output);
 			$output = str_replace($plxMotor->racine."categorie", $plxMotor->racine."'.$lang.'categorie", $output);
