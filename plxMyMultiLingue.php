@@ -272,22 +272,23 @@ class plxMyMultiLingue extends plxPlugin {
 		?>';
 
 		# modification des infos du site en fonction de la langue
-		echo '<?php
-			if(file_exists(PLX_ROOT.PLX_CONFIG_PATH."plugins/plxMyMultiLingue.xml")) {
+		if(file_exists(PLX_ROOT.PLX_CONFIG_PATH."plugins/plxMyMultiLingue.xml")) {
+			echo '<?php
 				$this->aConf["title"] = "'.$this->getParam("title_".$this->lang).'";
 				$this->aConf["description"] = "'.$this->getParam("description_".$this->lang).'";
 				$this->aConf["meta_description"] = "'.$this->getParam("meta_description_".$this->lang).'";
 				$this->aConf["meta_keywords"] = "'.$this->getParam("meta_keywords_".$this->lang).'";
-
-				if('.$this->getParam("lang_style").') {
+			?>';
+			if($this->getParam("lang_style")) {
+				echo '<?php
 					$theme = "'.$this->getParam("style_".$this->lang).'";
 					if($theme!="" AND is_dir(PLX_ROOT.$this->aConf["racine_themes"].$theme)) {
 						$this->aConf["style"] = $theme;
 						$this->style = $theme;
 					}
-				}
+				?>';
 			}
-		?>';
+		}
 
 		# s'il faut un dossier medias différent pour chaque langue
 		if($this->getParam('lang_medias_folder')) {
