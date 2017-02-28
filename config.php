@@ -32,22 +32,18 @@ if(!empty($_POST)) {
 	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
 	$plxPlugin->setParam('lang_medias_folder', $_POST['lang_medias_folder'], 'numeric');
 	$plxPlugin->setParam('lang_style', $_POST['lang_style'], 'numeric');
+	$plxPlugin->setParam('user_lang', $_POST['user_lang'], 'numeric');
 	$plxPlugin->setParam('display', $_POST['display'], 'string');
-	$plxPlugin->setParam('redirect_ident', $_POST['redirect_ident'], 'numeric');
 
 	$plxPlugin->mkDirs();
 	$plxPlugin->saveParams();
-	# réinitialisation des variables de sessions dépendantes de la langues
-	if(isset($array1) AND !empty($array1)) {
-		$lg = array_keys($array1);
-		$_SESSION['default_lang'] = $lg[0];
-		$_SESSION['lang'] = $lg[0];
-	} else {
-		unset($_SESSION['default_lang']);
-		unset($_SESSION['lang']);
-	}
+
+	unset($_SESSION['default_lang']);
+	unset($_SESSION['lang']);
 	unset($_SESSION['medias']);
 	unset($_SESSION['folder']);
+	unset($_SESSION['currentfolder']);
+	unset($_SESSION["plxMyMultiLingue"]);
 	header('Location: parametres_plugin.php?p=plxMyMultiLingue');
 	exit;
 }
@@ -58,7 +54,7 @@ $aFlags = $flags!='' ? explode(',', $flags) : array() ;
 $labels = $plxPlugin->getParam('labels');
 $aLabels = $labels!='' ? unserialize($labels) : $Labels;
 $display = $plxPlugin->getParam('display')!='' ? $plxPlugin->getParam('display') : 'flag';
-$redirect_ident = $plxPlugin->getParam('redirect_ident') == '' ? 0 : $plxPlugin->getParam('redirect_ident');
+$user_lang = $plxPlugin->getParam('user_lang') == '' ? 0 : $plxPlugin->getParam('user_lang');
 
 # Récupération et tri des langues en fonction des préférences de l'utilisateur
 $aLangs = array_merge($aFlags, array_diff(plxUtils::getLangs(), $aFlags));
@@ -107,8 +103,8 @@ $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam(
 		<?php plxUtils::printSelect('lang_style',array('1'=>L_YES,'0'=>L_NO),$lang_style) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL'),'listbox'=>$plxPlugin->getLang('L_LISTBOX')),$display) ?>
-		<p class="field"><label for="id_redirect_ident"><?php echo $plxPlugin->lang('L_REDIRECT_IDENT') ?>&nbsp;:</label></p>
-		<?php plxUtils::printSelect('redirect_ident',array('1'=>L_YES,'0'=>L_NO),$redirect_ident) ?>
+		<p class="field"><label for="id_user_lang"><?php echo $plxPlugin->lang('L_USER_LANG') ?>&nbsp;:</label></p>
+		<?php plxUtils::printSelect('user_lang',array('1'=>L_YES,'0'=>L_NO),$user_lang) ?>
 	</fieldset>
 	<fieldset>
 		<p class="in-action-bar">
