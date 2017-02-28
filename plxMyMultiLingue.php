@@ -1054,20 +1054,18 @@ class plxMyMultiLingue extends plxPlugin {
 			if($this->aLangs) {
 				echo '<div id="langs">';
 				if($this->getParam('display')=='listbox') {
-					echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite() ?>\'+this.options[this.selectedIndex].value+\'/\'">';
+					echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite() ?>\'+this.options[this.selectedIndex].value">';
 					foreach($this->aLangs as $idx=>$lang) {
 						$sel = $this->lang==$lang ? ' selected="selected"':'';
-						$val_lang = $_SESSION['default_lang']==$lang ? "" : $lang;
+						$val_lang = $_SESSION['default_lang']==$lang ? "" : $lang.'/';
 						echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 					}
 					echo '</select>';
 				} else {
 					echo '<ul>';
 					foreach($this->aLangs as $idx=>$lang) {
-
 						$url_lang = $lang.'/';
 						if($_SESSION['default_lang']==$lang) $url_lang="";
-
 						$sel = $this->lang==$lang ? ' active':'';
 						if($this->getParam('display')=='flag') {
 							echo '<?php
