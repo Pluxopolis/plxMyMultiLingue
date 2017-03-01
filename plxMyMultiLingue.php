@@ -409,6 +409,7 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 		}
+
 		?>';
 	}
 
@@ -955,22 +956,26 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function ThemeEndHead() {
 		echo '<?php
-		if($plxMotor->mode=="article" AND $plxMotor->infos_arts) {
+		if($plxMotor->mode=="article") {
 			# affichage du hreflang pour la langue courante
 			$url = "/article".intval($plxMotor->cible)."/".$plxMotor->plxRecord_arts->f("url");
 			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
 			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
-			foreach($plxMotor->infos_arts as $lang => $data) {
-				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+			if($plxMotor->infos_arts) {
+				foreach($plxMotor->infos_arts as $lang => $data) {
+					echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+				}
 			}
 		}
-		if($plxMotor->mode=="static" AND $plxMotor->infos_statics) {
+		if($plxMotor->mode=="static") {
 			# affichage du hreflang pour la langue courante
 			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
 			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
 			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
-			foreach($plxMotor->infos_statics as $lang => $data) {
-				echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+			if($plxMotor->infos_statics) {
+				foreach($plxMotor->infos_statics as $lang => $data) {
+					echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+				}
 			}
 		}
 		?>';
