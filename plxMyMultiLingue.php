@@ -191,6 +191,7 @@ class plxMyMultiLingue extends plxPlugin {
 	public function onDeactivate() {
 		$_SESSION['lang'] = $_SESSION['default_lang'];
 		unset($_SESSION['default_lang']);
+		unset($_SESSION['data_lang']);
 		unset($_SESSION['medias']);
 		unset($_SESSION['folder']);
 		unset($_SESSION['currentfolder']);
