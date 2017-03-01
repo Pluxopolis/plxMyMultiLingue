@@ -582,7 +582,7 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/**
-	 * Méthode qui enregistre les dépendances dans le fichiers statiques.xml de la langue courante
+	 * Méthode qui enregistre les dépendances dans le fichier statiques.xml de la langue courante
 	 *
 	 * @author	Stephane F
 	 **/
@@ -657,9 +657,9 @@ class plxMyMultiLingue extends plxPlugin {
 
 		$aLabels = unserialize($this->getParam('labels'));
 
-		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<div id="langs">';
+			# affichage sous forme de liste déroulante
 			if($this->getParam('display')=='listbox') {
 				echo "<select onchange=\"self.location='?lang='+this.options[this.selectedIndex].value\">";
 				foreach($this->aLangs as $idx=>$lang) {
@@ -667,6 +667,7 @@ class plxMyMultiLingue extends plxPlugin {
 					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 				}
 				echo '</select>';
+			# affichage sous forme de drapeaux ou de texte
 			} else {
 				foreach($this->aLangs as $lang) {
 					$sel = $this->lang==$lang ? " active" : "";
@@ -681,6 +682,7 @@ class plxMyMultiLingue extends plxPlugin {
 			echo '</div>';
 		}
 
+		# message d'information utilisateur si la réécriture d'url n'est pas activée
 		$string = '
 		if($plxAdmin->aConf["urlrewriting"]!="1") {
 			echo "<p class=\"warning\">Plugin MyMultiLingue<br />'.$this->getLang("L_ERR_URL_REWRITING").'</p>";
@@ -703,7 +705,7 @@ class plxMyMultiLingue extends plxPlugin {
 	/* core/admin/admin.php 		*/
 	/********************************/
 
-	/* méthodes qui gèrent les dépendances entre articles */
+	/* méthodes qui gèrent les dépendances entre articles - E/S fichiers .xml */
 
 	public function AdminArticlePostData() {
 		echo '<?php $art["deplng"] = $_POST["deplng"]; ?>';
@@ -728,7 +730,6 @@ class plxMyMultiLingue extends plxPlugin {
 	 **/
 	public function AdminArticleContent() {
 
-		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<p>'.$this->getLang('L_IDENT_ARTICLE').'</p>';
 			echo '<ul class="unstyled-list">';
