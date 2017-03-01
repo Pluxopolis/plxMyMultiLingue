@@ -81,7 +81,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# droits pour accéder à la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
 
-		# PLX_MYMULTILINGUE contient la liste des langues - pour être utilisé par d'autres plugins
+		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
 		define('PLX_MYMULTILINGUE', array('langs' => $this->getParam('flags'), 'lang' => $this->lang));
 
 		#====================================================
