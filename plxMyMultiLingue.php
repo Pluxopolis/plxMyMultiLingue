@@ -82,7 +82,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->setConfigProfil(PROFIL_ADMIN);
 
 		# PLX_MYMULTILINGUE contient la liste des langues - pour être utilisé par d'autres plugins
-		define('PLX_MYMULTILINGUE', $this->getParam('flags'));
+		define('PLX_MYMULTILINGUE', array('langs' => $this->getParam('flags'), 'lang' => $this->lang));
 
 		#====================================================
 		# déclaration des hooks communs frontend et backend
