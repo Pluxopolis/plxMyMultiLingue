@@ -45,6 +45,11 @@ class plxMyMultiLingue extends plxPlugin {
 				else
 					$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
 
+				# réinitialisation des dossiers pour le gestionnaire de médias
+				unset($_SESSION["medias"]);
+				unset($_SESSION["folder"]);
+				unset($_SESSION['currentfolder']);
+
 				header("Location: ".$redirect);
 				exit;
 			}
@@ -307,9 +312,10 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# s'il faut un dossier medias différent pour chaque langue
 		if($this->getParam('lang_medias_folder')) {
-			echo '<?php $this->aConf["medias"] = $this->aConf["medias"]."'.$this->lang.'/"; ?>';
+			echo '<?php
+				$this->aConf["medias"] = $this->aConf["medias"]."'.$this->lang.'/";
+			?>';
 		}
-
 	}
 
 	/**
