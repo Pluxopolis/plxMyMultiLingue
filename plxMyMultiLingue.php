@@ -401,12 +401,18 @@ class plxMyMultiLingue extends plxPlugin {
 								if($number==$id) {
 									$active = intval($attributes["active"]);
 									if($active) {
-										$url = "/static".intval($id)."/".$attributes["url"];
-										if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
+										$homestatic = plxUtils::getValue($values[$iTags["homeStatic"][$i]]["value"]);
+										if($homestatic)
+											$url = $this->racine.$lang."/";
+										else {
+											$url = "/static".intval($id)."/".$attributes["url"];
+											if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
+										}
 										$title = plxUtils::getValue($values[$iTags["name"][$i]]["value"]);
 										$this->infos_statics[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
 										$this->infos_statics[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($title)."</a>";
 										$this->infos_statics[$lang]["url"] = $url;
+										$this->infos_statics[$lang]["homestatic"] = $homestatic;
 									}
 									break;
 								}
@@ -979,10 +985,16 @@ class plxMyMultiLingue extends plxPlugin {
 			# affichage du hreflang pour la langue courante
 			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
 			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
-			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
+			if($plxMotor->aConf["homestatic"] == $plxMotor->cible)
+				echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$plxMotor->racine."\" />\n";
+			else
+				echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
 			if($plxMotor->infos_statics) {
 				foreach($plxMotor->infos_statics as $lang => $data) {
-					echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+					if($data["homestatic"])
+						echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$plxMotor->racine.$lang."/\" />\n";
+					else
+						echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
 				}
 			}
 		}
