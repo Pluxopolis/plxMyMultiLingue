@@ -100,6 +100,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('plxMotorDemarrageNewCommentaire', 'plxMotorDemarrageNewCommentaire');
 		$this->addHook('plxMotorGetStatiques', 'plxMotorGetStatiques');
 		$this->addHook('plxMotorParseArticle', 'plxMotorParseArticle');
+		$this->addHook('plxMotorRedir301', 'plxMotorRedir301');
 
 		#=====================================================
 		# Déclaration des hooks pour la zone d'administration
@@ -488,6 +489,21 @@ class plxMyMultiLingue extends plxPlugin {
 			?>';
 	}
 
+	/**
+	 * Méthode qui s'assure que la langue est présente dans les liens de redirection de type 301
+	 *
+	 * @author	Stephane F
+	 **/
+	public function plxMotorRedir301() {
+		if($this->lang!=$_SESSION['default_lang']) {
+			echo '<?php
+				if(!preg_match("#".$this->racine."'.$this->lang.'/#", $url)) {
+					$url = str_replace($this->racine, $this->racine."'.$this->lang.'/", $url);
+				}
+			?>';
+		}
+	}
+
 	/********************************/
 	/* core/lib/class.plx.admin.php	*/
 	/********************************/
@@ -616,26 +632,6 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 	/* core/lib/class.plx.show.php 	*/
 	/********************************/
-
-	/**
-	 * Méthode pour définir le fichier de langue du thème à charger
-	 *
-	 * @author	Stephane F
-	 **/
-	public function plxShowConstruct() {
-
-		echo '<?php
-		/*
-			$url = str_replace($this->plxMotor->get,"",$_SERVER["REQUEST_URI"]);
-			if($this->plxMotor->get=="") {
-				if(preg_match("/\/([a-zA-Z]{2})\/$/",$url, $capture))
-					$lang = $capture[1];
-				else
-					$lang = $_SESSION["default_lang"];
-			}
-		*/
-		?>';
-	}
 
 	/**
 	 * Méthode qui modifie l'url des pages statiques en rajoutant la langue courante dans le lien du menu de la page
