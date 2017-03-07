@@ -544,8 +544,9 @@ class plxMyMultiLingue extends plxPlugin {
 			?>';
 		}
 
-		# pour ne pas écraser les chemins racine_articles, racine_statiques et racine_commentaires
+		# pour ne pas écraser la langue par défaut, les chemins racine_articles, racine_statiques et racine_commentaires
 		echo '<?php
+			$global["default_lang"] = $_SESSION["default_lang"];
 			$global["racine_articles"] = str_replace("/'.$this->lang.'/", "/", $global["racine_articles"]);
 			$global["racine_statiques"] = str_replace("/'.$this->lang.'/", "/", $global["racine_statiques"]);
 			$global["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $global["racine_commentaires"]);
@@ -930,8 +931,6 @@ class plxMyMultiLingue extends plxPlugin {
 
 	}
 
-
-
 	/********************************/
 	/* /index.php 					*/
 	/********************************/
@@ -946,7 +945,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
 
 		echo '<?php
-			$output = preg_replace(\'#href="\'.$plxMotor->racine.\'"#\', \'href="\'.$plxMotor->racine.\''.$lang.'"\', $output);
+			$output = str_replace("href=\"".$plxMotor->racine."\"", "href=\"".$plxMotor->racine."'.$lang.'\"", $output);
 			$output = str_replace($plxMotor->racine."article", $plxMotor->racine."'.$lang.'article", $output);
 			$output = str_replace($plxMotor->racine."static", $plxMotor->racine."'.$lang.'static", $output);
 			$output = str_replace($plxMotor->racine."categorie", $plxMotor->racine."'.$lang.'categorie", $output);
@@ -956,6 +955,7 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$lang.'page", $output);
 			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$lang.'blog", $output);
 			$output = str_replace(PLX_PLUGINS, $plxMotor->aConf["racine_plugins"], $output);
+			$output = str_replace("href=\"".$plxMotor->racine.$_SESSION["default_lang"]."/", "href=\"".$plxMotor->racine, $output);
 		?>';
 	}
 
@@ -1020,6 +1020,7 @@ class plxMyMultiLingue extends plxPlugin {
 			$output = str_replace($plxFeed->racine."feed/", $plxFeed->racine."feed/'.$lang.'", $output);
 			$output = str_replace($plxFeed->racine."page", $plxFeed->racine."'.$lang.'page", $output);
 			$output = str_replace($plxFeed->racine."blog", $plxFeed->racine."'.$lang.'blog", $output);
+			$output = str_replace("<link>".$plxFeed->racine."</link>", "<link>".$plxFeed->racine."'.$lang.'</link>", $output);
 		?>';
 
 	}
@@ -1052,6 +1053,12 @@ class plxMyMultiLingue extends plxPlugin {
 	public function SitemapEnd() {
 
 		$this->IndexEnd();
+
+		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
+
+		echo '<?php
+			$output = str_replace("<loc>".$plxMotor->racine."</loc>", "<loc>".$plxMotor->racine."'.$lang.'</loc>", $output);
+		?>';
 
 	}
 
