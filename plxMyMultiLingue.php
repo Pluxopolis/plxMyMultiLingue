@@ -856,7 +856,8 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 
 	/**
-	 * Méthode qui rajoute la langue courante dans les liens des articles et des pages statiques
+	 * Méthode qui rajoute la langue courante dans les liens des articles et des pages statiques permettant
+	 * de les visualiser coté visiteurs (liens "Voir", "Visualiser la page statique sur le site", etc...)
 	 *
 	 * @author	Stephane F
 	 **/
@@ -865,8 +866,8 @@ class plxMyMultiLingue extends plxPlugin {
 		echo '<?php
 			$output = ob_get_clean();
 			if (!preg_match("/parametres/",basename($_SERVER["SCRIPT_NAME"]))) {
-				$output = preg_replace("/(article[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
-				$output = preg_replace("/(static[a-z0-9-]+\/)/", "'.$this->lang.'/$1", $output);
+				$output = preg_replace("#(".$plxAdmin->racine.")(article[a-z0-9-]+\/)#", "$1'.$this->lang.'/$2", $output);
+				$output = preg_replace("#(".$plxAdmin->racine.")(static[a-z0-9-]+\/)#",  "$1'.$this->lang.'/$2", $output);
 			}
 			echo $output;
 		?>';
