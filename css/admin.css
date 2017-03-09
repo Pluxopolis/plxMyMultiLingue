@@ -16,6 +16,8 @@
 		text-align: center;
 		top: 0;
 		z-index: 799;
+		background-color: #ededed;
+		padding-top: 5px;
 	}
 }
 #form_langs img { max-width:25px; border: 1px solid #ccc; padding: 2px }
