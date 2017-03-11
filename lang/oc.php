@@ -14,7 +14,7 @@ $LANG = array(
 'L_MISSING_CONFIG_PLUGIN'			=> 'Configuracion <strong>%s</strong> absenta per las extensions',
 'L_IDENT_ARTICLE'					=> 'Dependéncias d\'aqueste article : lista dels identificants per lenga (opcion)',
 'L_IDENT_STATIC'					=> 'Dependéncias d\'aquesta pagina : lista dels identificants per lenga (opcion)',
-'L_ERR_URL_REWRITING'				=> 'Veuillez activer la réécriture d\'url (Paramètres > Configuration avancée > Activer la réécriture d\'URL > Oui)',
-'L_USER_LANG'						=> 'Préserver l\'affichage de l\'interface d\'administration avec la langue du profil utilisateur connecté',
+'L_ERR_URL_REWRITING'				=> 'Mercés d\'activar la reescritura d\'urls (Paramètres > Configuracion avançada > Activar la reescritura d\'urls > Òc)',
+'L_USER_LANG'						=> 'Presèrva l\'afichatge de l\'interfàcia d\'administracion dins la lenga del perfil utilizator connectat',
 );
 ?>
