@@ -144,7 +144,9 @@ class plxMyMultiLingue extends plxPlugin {
 
 			# core/lib/class.plx.show.php
 			$this->addHook('plxShowConstruct', 'plxShowConstruct');
+			$this->addHook('plxShowStaticListBegin', 'plxShowStaticListBegin');
 			$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
+			$this->addHook('plxShowPageBlog', 'plxShowPageBlog');
 
 			# core/lib/class.plx.feed.php
 			$this->addHook('plxFeedConstructLoadPlugins', 'ConstructLoadPlugins');
@@ -633,6 +635,27 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 	/* core/lib/class.plx.show.php 	*/
 	/********************************/
+
+	/**
+	 * Méthode qui supprime la langue au début de $_SERVER['QUERY_STRING'] pour passer le test sur le contenu de l'url
+	 * dans plxShow::staticList()
+	 *
+	 * @author	Stephane F
+	 **/
+	public function plxShowStaticListBegin() {
+
+		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
+
+		echo '<?php
+			$_SERVER["QUERY_STRING"] = ltrim($_SERVER["QUERY_STRING"], "'.$lang.'");
+		?>';
+	}
+
+	public function plxShowPageBlog() {
+
+		$this->plxShowStaticListBegin();
+
+	}
 
 	/**
 	 * Méthode qui modifie l'url des pages statiques en rajoutant la langue courante dans le lien du menu de la page
