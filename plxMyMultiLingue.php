@@ -1113,7 +1113,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# Affichage des dépendances entre articles
 		elseif($param=="artlinks") {
 			echo '<?php
-				if($plxMotor->infos_arts) {
+				if(isset($plxMotor->infos_arts)) {
 					$output = "";
 					foreach($plxMotor->infos_arts as $lang => $data) {
 						$output .= "<li>".$data["img"]." ".$data["link"]."</li>";
@@ -1127,7 +1127,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# Affichage des dépendances entre articles
 		elseif($param=="staticlinks") {
 			echo '<?php
-				if($plxMotor->infos_statics) {
+				if(isset($plxMotor->infos_statics)) {
 					$output = "";
 					foreach($plxMotor->infos_statics as $lang => $data) {
 						$output .= "<li>".$data["img"]." ".$data["link"]."</li>";
