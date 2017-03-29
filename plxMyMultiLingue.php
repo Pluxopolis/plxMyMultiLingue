@@ -78,7 +78,7 @@ class plxMyMultiLingue extends plxPlugin {
 		}
 
 		# appel du constructeur de la classe plxPlugin (obligatoire)
-		parent::__construct($default_lang);
+		parent::__construct($this->lang);
 
 		# validation de la langue courante
 		$this->validateLang();
@@ -88,6 +88,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
 		define('PLX_MYMULTILINGUE', array('langs' => $this->getParam('flags'), 'lang' => $this->lang));
+		$_SESSION['lang'] = $this->lang;
 
 		#====================================================
 		# déclaration des hooks communs frontend et backend
@@ -195,7 +196,8 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function onDeactivate() {
-		$_SESSION['lang'] = $_SESSION['default_lang'];
+		unset($_SESSION['lang']);
+		unset($_SESSION['admin_lang']);
 		unset($_SESSION['default_lang']);
 		unset($_SESSION['data_lang']);
 		unset($_SESSION['medias']);
