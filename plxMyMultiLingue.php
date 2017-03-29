@@ -88,7 +88,8 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
 		define('PLX_MYMULTILINGUE', array('langs' => $this->getParam('flags'), 'lang' => $this->lang));
-		$_SESSION['lang'] = $this->lang;
+		
+		if(!defined('PLX_ADMIN')) $_SESSION['lang'] = $this->lang;
 
 		#====================================================
 		# déclaration des hooks communs frontend et backend
