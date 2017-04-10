@@ -87,7 +87,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->setConfigProfil(PROFIL_ADMIN);
 
 		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
-		define('PLX_MYMULTILINGUE', array('langs' => $this->getParam('flags'), 'lang' => $this->lang));
+		define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
 		
 		if(!defined('PLX_ADMIN')) $_SESSION['lang'] = $this->lang;
 
@@ -166,6 +166,20 @@ class plxMyMultiLingue extends plxPlugin {
 
 		}
 	}
+	
+	public static function _Lang() {
+		$def = unserialize(PLX_MYMULTILINGUE);
+		if(isset($def['lang'])) {
+			return $def['lang'];
+		}
+	}
+	
+	public static function _Langs() {
+		$def = unserialize(PLX_MYMULTILINGUE);
+		if(isset($def['langs'])) {
+			return $def['langs'];
+		}
+	}	
 
 	/*************************************/
 	/* gestion active/deactive/update    */
@@ -177,6 +191,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function onActivate() {
+		if(file_exists(PLX_PLUGINS.'plxMyMultiLingue/update')) chmod(PLX_PLUGINS.'plxMyMultiLingue/update',0644); # en attendant la modif en natif dans class.plx.plugins.php
 		# Mise en cache du css partie administration
 		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/admin.css';
 		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingue.admin.css';

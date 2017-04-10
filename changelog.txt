@@ -1,4 +1,8 @@
-﻿version 0.8 (27/03/2017)
+﻿version 0.8.1 (10/04/2017)
+BUG tableau PLX_MYMULTILINGUE non géré avec php 5.x+
+BUG Suppression fichier plugin update impossible (droit fichier)
+
+version 0.8 (27/03/2017)
 [+] Compatibilité PluCSS 1.2
 [+] Gestion des dépendances entre articles rédigés dans des langues différentes
 [+] Gestion des dépendances entre les pages statiques rédigées dans des langues différentes
