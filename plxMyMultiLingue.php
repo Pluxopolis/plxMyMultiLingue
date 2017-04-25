@@ -442,7 +442,7 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 		}
-//var_dump("MyMultulingue plxMotorDemarrageEnd root & this-get",$root,$this->get);
+//var_dump("MyMultulingue plxMotorDemarrageEnd this-get",$this->get);
 		?>';
 	}
 
@@ -1117,11 +1117,12 @@ class plxMyMultiLingue extends plxPlugin {
 				} else {
 					echo '<ul>';
 					foreach($this->aLangs as $idx=>$lang) {
-						$url_lang = $lang.'/';
-						if($_SESSION['default_lang']==$lang) $url_lang="";
+						$url_lang = $lang.$_SERVER["REQUEST_URI"];
+						$url_lang = $this->lang==$lang ? str_replace($lang.'/'.$lang.'/',$lang.'/',$url_lang) : str_replace($this->lang.'/','',$url_lang);
+						if($_SESSION['default_lang']==$lang) $url_lang = str_replace($lang.'/','',$url_lang);
 						$sel = $this->lang==$lang ? ' active':'';
 						if($this->getParam('display')=='flag') {
-							echo '<?php var_dump("multilingue MyMultiLingue",$_SERVER["REQUEST_URI"],$_SERVER["HTTP_REFERER"]);
+							echo '<?php //var_dump("multilingue MyMultiLingue",$_SERVER["REQUEST_URI"],$_SERVER["HTTP_REFERER"],$_SESSION);
 								$img = "<img class=\"lang'.$sel.'\" src=\"".PLX_PLUGINS."plxMyMultiLingue/img/'.$lang.'.png"."\" alt=\"'.$lang.'\" />";
 								echo "<li><a href=\"'.$url_lang.'\">".$img."</a></li>";
 							?>';
