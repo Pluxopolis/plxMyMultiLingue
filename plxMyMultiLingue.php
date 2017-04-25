@@ -40,15 +40,8 @@ class plxMyMultiLingue extends plxPlugin {
 				$this->lang = $_GET["lang"];
 				$_SESSION['data_lang'] = $this->lang;
 
-				//~ if(preg_match('/\?lang='.$this->lang.'$/', $_SERVER['REQUEST_URI']))
-					//~ $redirect = 'index.php';
-				//~ elseif(isset($_SERVER['HTTP_REFERER']))
-					//~ $redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['HTTP_REFERER']);
-				//~ else
-					$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
-					#$redirect = str_replace('&', '&amp;', $redirect);
-//var_dump('multilingue construct',$_SERVER['REQUEST_URI'],$_SERVER['HTTP_REFERER'],$redirect);exit;
-				# réinitialisation des dossiers pour le gestionnaire de médias
+				$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
+
 				unset($_SESSION["medias"]);
 				unset($_SESSION["folder"]);
 				unset($_SESSION['currentfolder']);
@@ -693,19 +686,10 @@ class plxMyMultiLingue extends plxPlugin {
 		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
-   $ruri = '';
-   if(strstr($_SERVER["REQUEST_URI"],'?')){//var_dump('MML AdminTopBottom REQUEST_URI',$_SERVER["REQUEST_URI"]);
-    //~ $ruri = explode('?',$_SERVER["REQUEST_URI"]); #1st work
-    //~ $ruri = '&amp;'.$ruri[1]; #1st work
-
-
-    //~ var_dump(strpos($_SERVER["REQUEST_URI"], '&amp;'));
-    //~ var_dump(htmlentities($_SERVER["REQUEST_URI"]));
-
-    $ruri = htmlentities('&'.substr($_SERVER["REQUEST_URI"], (strpos($_SERVER["REQUEST_URI"], '?') + 1)));
-//var_dump($ruri,$this);
-
-   }
+			$ruri	=	'';
+			if(strstr($_SERVER["REQUEST_URI"],'?')){
+				$ruri	=	htmlentities('&'.substr($_SERVER["REQUEST_URI"],	(strpos($_SERVER["REQUEST_URI"],	'?')	+	1)));
+			}
 			echo '<div id="langs">';
 			# affichage sous forme de liste déroulante
 			if($this->getParam('display')=='listbox') {
