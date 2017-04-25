@@ -686,9 +686,9 @@ class plxMyMultiLingue extends plxPlugin {
 		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
-			$ruri	=	'';
+			$ruri = '';
 			if(strstr($_SERVER["REQUEST_URI"],'?')){
-				$ruri	=	htmlentities('&'.substr($_SERVER["REQUEST_URI"],	(strpos($_SERVER["REQUEST_URI"],	'?')	+	1)));
+				$ruri = htmlentities('&'.substr($_SERVER["REQUEST_URI"], (strpos($_SERVER["REQUEST_URI"], '?') + 1)));
 			}
 			echo '<div id="langs">';
 			# affichage sous forme de liste déroulante
