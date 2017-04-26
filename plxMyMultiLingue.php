@@ -687,7 +687,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		if($this->aLangs) {
 			$ruri = '';
-			if(strstr($_SERVER["REQUEST_URI"],'?')){
+			if(strstr($_SERVER["REQUEST_URI"],'?')){//var_dump('MML AdminTopBottom session',$_SESSION,$_SERVER["REQUEST_URI"],$this->lang);
 				$ruri = htmlentities('&'.substr($_SERVER["REQUEST_URI"], (strpos($_SERVER["REQUEST_URI"], '?') + 1)));
 			}
 			echo '<div id="langs">';
