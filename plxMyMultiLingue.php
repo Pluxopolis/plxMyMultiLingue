@@ -41,7 +41,7 @@ class plxMyMultiLingue extends plxPlugin {
 				$_SESSION['data_lang'] = $this->lang;
 
 				$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
-
+				# réinitialisation des dossiers pour le gestionnaire de médias
 				unset($_SESSION["medias"]);
 				unset($_SESSION["folder"]);
 				unset($_SESSION['currentfolder']);
@@ -437,7 +437,7 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 		}
-//var_dump("MyMultulingue plxMotorDemarrageEnd this-get",$this->get);
+
 		?>';
 	}
 
