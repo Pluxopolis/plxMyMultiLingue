@@ -1,5 +1,7 @@
-﻿version 0.8.# (##/04/2017)
-si dans et qu l'on clique sur le drapeau il reste le '?' core/admin/parametres_plugins.php?
+version 0.8.# (##/04/2017)
+[+] Permet de changer de langue tout en restant sur la meme page 
+Dans l'administration (tester avec plxMyShop & autres) ::: bug a Solutionner : si dans core/admin/parametres_plugins.php et que l'on clique sur le drapeau il reste le '?' core/admin/parametres_plugins.php?
+Le coté public est en test, il manque peut-être des truc auquels j'ai pas pensé
 
 version 0.8.1 (10/04/2017)
 BUG tableau PLX_MYMULTILINGUE non géré avec php 5.x+
