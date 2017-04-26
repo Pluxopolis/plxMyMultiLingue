@@ -1,4 +1,7 @@
-﻿version 0.8.1 (10/04/2017)
+﻿version 0.8.# (##/04/2017)
+si dans et qu l'on clique sur le drapeau il reste le '?' core/admin/parametres_plugins.php?
+
+version 0.8.1 (10/04/2017)
 BUG tableau PLX_MYMULTILINGUE non géré avec php 5.x+
 BUG Suppression fichier plugin update impossible (droit fichier)
 

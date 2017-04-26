@@ -40,11 +40,7 @@ class plxMyMultiLingue extends plxPlugin {
 				$this->lang = $_GET["lang"];
 				$_SESSION['data_lang'] = $this->lang;
 
-				if(preg_match('/\?lang='.$this->lang.'$/', $_SERVER['REQUEST_URI']))
-					$redirect = 'index.php';
-				else
-					$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
-
+				$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
 				# réinitialisation des dossiers pour le gestionnaire de médias
 				unset($_SESSION["medias"]);
 				unset($_SESSION["folder"]);
@@ -88,7 +84,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
 		define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
-		
+
 		if(!defined('PLX_ADMIN')) $_SESSION['lang'] = $this->lang;
 
 		#====================================================
@@ -685,13 +681,17 @@ class plxMyMultiLingue extends plxPlugin {
 		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
+			$ruri = '';
+			if(strstr($_SERVER["REQUEST_URI"],'?')){
+				$ruri = htmlentities('&'.substr($_SERVER["REQUEST_URI"], (strpos($_SERVER["REQUEST_URI"], '?') + 1)));
+			}
 			echo '<div id="langs">';
 			# affichage sous forme de liste déroulante
 			if($this->getParam('display')=='listbox') {
 				echo "<select onchange=\"self.location='?lang='+this.options[this.selectedIndex].value\">";
 				foreach($this->aLangs as $idx=>$lang) {
 					$sel = $this->lang==$lang ? ' selected="selected"':'';
-					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+					echo '<option value="'.$lang.$ruri.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 				}
 				echo '</select>';
 			# affichage sous forme de drapeaux ou de texte
@@ -700,9 +700,9 @@ class plxMyMultiLingue extends plxPlugin {
 					$sel = $this->lang==$lang ? " active" : "";
 					if($this->getParam('display')=='flag') {
 						$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
-						echo '<a href="?lang='.$lang.'">'.$img.'</a>';
+						echo '<a href="?lang='.$lang.$ruri.'">'.$img.'</a>';
 					} else {
-						echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+						echo '<a class="lang'.$sel.'" href="?lang='.$lang.$ruri.'">'.$aLabels[$lang].'</a>';
 					}
 				}
 			}
@@ -1111,8 +1111,9 @@ class plxMyMultiLingue extends plxPlugin {
 				} else {
 					echo '<ul>';
 					foreach($this->aLangs as $idx=>$lang) {
-						$url_lang = $lang.'/';
-						if($_SESSION['default_lang']==$lang) $url_lang="";
+						$url_lang = $lang.$_SERVER["REQUEST_URI"];
+						$url_lang = $this->lang==$lang ? str_replace($lang.'/'.$lang.'/',$lang.'/',$url_lang) : str_replace($this->lang.'/','',$url_lang);
+						if($_SESSION['default_lang']==$lang) $url_lang = str_replace($lang.'/','',$url_lang);
 						$sel = $this->lang==$lang ? ' active':'';
 						if($this->getParam('display')=='flag') {
 							echo '<?php
@@ -1142,7 +1143,7 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			?>';
 		}
-		# Affichage des dépendances entre articles
+		# Affichage des dépendances entre statiques
 		elseif($param=="staticlinks") {
 			echo '<?php
 				if(isset($plxMotor->infos_statics)) {
