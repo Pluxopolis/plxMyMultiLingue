@@ -687,7 +687,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		if($this->aLangs) {
 			$ruri = '';
-			if(strstr($_SERVER["REQUEST_URI"],'?')){//var_dump('MML AdminTopBottom session',$_SESSION,$_SERVER["REQUEST_URI"],$this->lang);
+			if(strstr($_SERVER["REQUEST_URI"],'?')){
 				$ruri = htmlentities('&'.substr($_SERVER["REQUEST_URI"], (strpos($_SERVER["REQUEST_URI"], '?') + 1)));
 			}
 			echo '<div id="langs">';
@@ -703,7 +703,7 @@ class plxMyMultiLingue extends plxPlugin {
 			} else {
 				foreach($this->aLangs as $lang) {
 					$sel = $this->lang==$lang ? " active" : "";
-					if($this->getParam('display')=='flag') { //var_dump("multilingue AdminTopBottom",$ruri,$_SERVER["REQUEST_URI"],$_SERVER["HTTP_REFERER"]);
+					if($this->getParam('display')=='flag') {
 						$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
 						echo '<a href="?lang='.$lang.$ruri.'">'.$img.'</a>';
 					} else {
@@ -712,7 +712,6 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 			echo '</div>';
-			//echo '<style>@media (max-width: 767px) {.in-action-bar {margin-top: 9rem;}}</style>';//6em (plx 5.4 & 5.5) 9em plx.5.6
 		}
 
 		# message d'information utilisateur si la réécriture d'url n'est pas activée
@@ -1122,7 +1121,7 @@ class plxMyMultiLingue extends plxPlugin {
 						if($_SESSION['default_lang']==$lang) $url_lang = str_replace($lang.'/','',$url_lang);
 						$sel = $this->lang==$lang ? ' active':'';
 						if($this->getParam('display')=='flag') {
-							echo '<?php //var_dump("multilingue MyMultiLingue",$_SERVER["REQUEST_URI"],$_SERVER["HTTP_REFERER"],$_SESSION);
+							echo '<?php
 								$img = "<img class=\"lang'.$sel.'\" src=\"".PLX_PLUGINS."plxMyMultiLingue/img/'.$lang.'.png"."\" alt=\"'.$lang.'\" />";
 								echo "<li><a href=\"'.$url_lang.'\">".$img."</a></li>";
 							?>';
