@@ -83,10 +83,7 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->setConfigProfil(PROFIL_ADMIN);
 
 		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour être utilisé par d'autres plugins
-		//if(!defined('PLX_MYMULTILINGUE'))//warning if plugin call getInstance: dans adhesion: $plxMotor = plxMotor::getInstance(); ::: !!!si le plugin adhesion est désactivé, cette erreur se produit seulement dans le menu plugin!!!
-			define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
-  //~ else
-   //~ return;
+		define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
 
 		if(!defined('PLX_ADMIN')) $_SESSION['lang'] = $this->lang;
 
@@ -201,10 +198,8 @@ class plxMyMultiLingue extends plxPlugin {
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
 		# Régénération des caches css
 		$plxAdmin = plxAdmin::getInstance();
- if( function_exists('cssCache')){//Fatal error: Call to undefined method plxPlugins::cssCache() in /var/www/0.src.blogs/plx_plugs_git/plxMyMultiLingue/plxMyMultiLingue.php on line 206 plx5.2 (on activate)
 		$plxAdmin->plxPlugins->cssCache('admin');
 		$plxAdmin->plxPlugins->cssCache('site');
- }
 	}
 
 	/**
@@ -347,7 +342,7 @@ class plxMyMultiLingue extends plxPlugin {
 
 		echo '<?php
 			# utilisation de preg_replace pour être sur que la chaine commence bien par la langue
-			$this->get = preg_replace("/^'.$this->lang.'\/(.*)/", "$1", $this->get); //var_dump("MyMultulingue PreChauffageBegin this-get",$this->get);
+			$this->get = preg_replace("/^'.$this->lang.'\/(.*)/", "$1", $this->get);
 		?>';
 
 	}
@@ -989,7 +984,7 @@ class plxMyMultiLingue extends plxPlugin {
 	 * @author	Stephane F
 	 **/
 	public function ThemeEndHead() {
-		echo '<?php //var_dump("multilingue ThemeEndHead motor mode",$plxMotor->mode);
+		echo '<?php
 		if($plxMotor->mode=="article") {
 			# affichage du hreflang pour la langue courante
 			$url = "/article".intval($plxMotor->cible)."/".$plxMotor->plxRecord_arts->f("url");
@@ -1003,7 +998,7 @@ class plxMyMultiLingue extends plxPlugin {
 		}
 		if($plxMotor->mode=="static") {
 			# affichage du hreflang pour la langue courante
-			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];//var_dump("multilingue ThemeEndHead",$url);
+			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
 			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
 			if($plxMotor->aConf["homestatic"] == $plxMotor->cible)
 				echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$plxMotor->racine."\" />\n";
