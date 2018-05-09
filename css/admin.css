@@ -1,6 +1,23 @@
-#langs 			{ width:100%; float:right; top:0; text-align:right; }
+#langs 				{ text-align:right; padding-bottom: 5px;}
 #langs a 			{ margin: 0 10px 0 0; text-decoration: none }
 #langs a:hover		{ color: #db2020; }
-#langs a img		{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; width: 25px }
+#langs a img			{ padding: 2px 2px 2px 2px; border: 1px solid #cecece; width: 25px }
 #langs a img.active	{ padding: 2px 2px 2px 2px; border: 1px solid red; }
 #langs a.active 		{ padding: 2px 2px 2px 2px; border: 1px solid red; color: red }
+#langs {
+	position: fixed;
+	top: 10px;
+	right: 0;
+	z-index: 799;
+}
+@media (max-width: 767px) {
+	#langs {
+		position: relative;
+		text-align: center;
+		top: 0;
+		z-index: 799;
+		background-color: #ededed;
+		padding-top: 5px;
+	}
+}
+#form_langs img { max-width:25px; border: 1px solid #ccc; padding: 2px }
