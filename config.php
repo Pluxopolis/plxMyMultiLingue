@@ -32,8 +32,9 @@ if(!empty($_POST)) {
 	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
 	$plxPlugin->setParam('lang_medias_folder', $_POST['lang_medias_folder'], 'numeric');
 	$plxPlugin->setParam('lang_style', $_POST['lang_style'], 'numeric');
-	$plxPlugin->setParam('user_lang', $_POST['user_lang'], 'numeric');
 	$plxPlugin->setParam('display', $_POST['display'], 'string');
+	$plxPlugin->setParam('modif_url', $_POST['modif_url'], 'numeric');
+	$plxPlugin->setParam('user_lang', $_POST['user_lang'], 'numeric');
 
 	$plxPlugin->mkDirs();
 	$plxPlugin->saveParams();
@@ -54,6 +55,7 @@ $aFlags = $flags!='' ? explode(',', $flags) : array() ;
 $labels = $plxPlugin->getParam('labels');
 $aLabels = $labels!='' ? unserialize($labels) : $Labels;
 $display = $plxPlugin->getParam('display')!='' ? $plxPlugin->getParam('display') : 'flag';
+$modif_url = $plxPlugin->getParam('modif_url') == '' ? 0 : $plxPlugin->getParam('modif_url');
 $user_lang = $plxPlugin->getParam('user_lang') == '' ? 0 : $plxPlugin->getParam('user_lang');
 
 # Récupération et tri des langues en fonction des préférences de l'utilisateur
@@ -103,6 +105,8 @@ $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam(
 		<?php plxUtils::printSelect('lang_style',array('1'=>L_YES,'0'=>L_NO),$lang_style) ?>
 		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL'),'listbox'=>$plxPlugin->getLang('L_LISTBOX')),$display) ?>
+		<p class="field"><label for="id_modif_url"><?php echo $plxPlugin->lang('L_MODIF_URL') ?>&nbsp;:</label></p>
+		<?php plxUtils::printSelect('modif_url',array('1'=>L_YES,'0'=>L_NO),$modif_url) ?>
 		<p class="field"><label for="id_user_lang"><?php echo $plxPlugin->lang('L_USER_LANG') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('user_lang',array('1'=>L_YES,'0'=>L_NO),$user_lang) ?>
 	</fieldset>

@@ -15,6 +15,7 @@ $LANG = array(
 'L_IDENT_ARTICLE'					=> 'Dépendances de cet article : liste des identifiants par langue (option)',
 'L_IDENT_STATIC'					=> 'Dépendances de cette page : liste des identifiants par langue (option)',
 'L_ERR_URL_REWRITING'				=> 'Veuillez activer la réécriture d\'url (Paramètres > Configuration avancée > Activer la réécriture d\'URL > Oui)',
+'L_MODIF_URL'						=> 'Remplace la langue dans l\'URL au changement de langue, pour rester sur la même page (si aucune page n\'est associé à la page )',
 'L_USER_LANG'						=> 'Préserver l\'affichage de l\'interface d\'administration avec la langue du profil utilisateur connecté',
 );
 ?>

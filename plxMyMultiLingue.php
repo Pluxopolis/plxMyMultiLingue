@@ -1101,12 +1101,42 @@ class plxMyMultiLingue extends plxPlugin {
 			if($this->aLangs) {
 				echo '<div id="langs">';
 				if($this->getParam('display')=='listbox') {
-					echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite() ?>\'+this.options[this.selectedIndex].value">';
-					foreach($this->aLangs as $idx=>$lang) {
-						$sel = $this->lang==$lang ? ' selected="selected"':'';
-						$val_lang = $_SESSION['default_lang']==$lang ? "" : $lang.'/';
-						echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+					$plxMotor =  plxMotor::getInstance();
+					if(isset($plxMotor->infos_arts)) {
+						$allPgLang = $plxMotor->infos_arts;
+					} else {
+						$allPgLang = $plxMotor->infos_statics;
 					}
+					if (isset($allPgLang)) { /* redirection sur la page concernée */
+						echo '<select onchange="self.location=this.options[this.selectedIndex].value">';
+						foreach($this->aLangs as $idx=>$lang) {
+							$sel = $this->lang==$lang ? ' selected="selected"':'';
+							if (isset($allPgLang[$lang])) {
+								$val_lang = (($_SESSION['default_lang']==$lang) ? '' : '/') . $allPgLang[$lang]["url"];
+							} else { /* Par défaut redirection sur home */
+								if ($this->getParam('modif_url')) {
+									$sURIend = ($_SESSION['default_lang']==$this->lang) ? $_SERVER[REQUEST_URI] : substr($_SERVER[REQUEST_URI], 3);
+									$val_lang = ($_SESSION['default_lang']==$lang ? '' : '/' .$lang) . $sURIend;
+								} else {
+									$val_lang = '/'. $_SESSION['default_lang']==$lang ? "" : $lang.'/';
+								}
+							}
+							echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+						}
+					} else /* Par défaut redirection sur home */ {
+						echo '<select onchange="self.location=this.options[this.selectedIndex].value">';
+						foreach($this->aLangs as $idx=>$lang) {
+							$sel = $this->lang==$lang ? ' selected="selected"':'';
+							if ($this->getParam('modif_url')) {
+								$sURIend = ($_SESSION['default_lang']==$this->lang) ? $_SERVER[REQUEST_URI] : substr($_SERVER[REQUEST_URI], 3);
+								$val_lang = ($_SESSION['default_lang']==$lang ? '' : '/' .$lang) . $sURIend;
+							} else {
+								$val_lang = '/'. $_SESSION['default_lang']==$lang ? "" : $lang.'/';
+							}
+							echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+						}
+					}
+
 					echo '</select>';
 				} else {
 					echo '<ul>';
