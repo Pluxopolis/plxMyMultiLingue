@@ -1,6 +1,6 @@
 Todo? Dépendances de cette catégorie : liste des identifiants par langue (option)
 
-version 0.9.0 (15/07/2020)
+version 0.9.0 (05/08/2020)
 ready for next gen (autoload) : si les paramas ne sont pas chargés ds le constructeur, on les charge ;)
 Fix __CLASS__ adminPrepend le plugins ne sont pas a la bonne langue a leur 1er accès (du au fait de la session admin_lang est différente de data_lang. scope : si la langue de l'utilisateur est non respecté)
 Fix __CLASS__ __construct pour trouver la langue
