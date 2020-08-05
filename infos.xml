@@ -2,8 +2,8 @@
 <document>
 	<title><![CDATA[MyMultiLingue]]></title>
 	<author><![CDATA[Stephane F., Thomas I. @sudwebdesign]]></author>
-	<version>0.9.0</version>
-	<date>05/08/2020</date>
+	<version>0.9.1</version>
+	<date>06/08/2020</date>
 	<site>http://sudwebdesign.free.fr/depot.php#multi</site>
 	<description><![CDATA[Gestion multilingue de PluXml, #SWD]]></description>
 	<requirements></requirements>

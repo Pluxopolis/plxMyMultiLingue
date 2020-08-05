@@ -1,5 +1,8 @@
 Todo? Dépendances de cette catégorie : liste des identifiants par langue (option)
 
+version 0.9.1 (06/08/2020)
+Fix sitemap si les short open tag de PHP activés (merci garys02) https://forum.pluxml.org/discussion/comment/60915/#Comment_60915
+
 version 0.9.0 (05/08/2020)
 ready for next gen (autoload) : si les paramas ne sont pas chargés ds le constructeur, on les charge ;)
 Fix __CLASS__ adminPrepend le plugins ne sont pas a la bonne langue a leur 1er accès (du au fait de la session admin_lang est différente de data_lang. scope : si la langue de l'utilisateur est non respecté)

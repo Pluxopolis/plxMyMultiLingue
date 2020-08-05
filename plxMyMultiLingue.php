@@ -1079,8 +1079,8 @@ echo '<?php $mml_lang="'.$lang.'";'; ?>
 		if(!preg_match('~sitemap.php\/([a-zA-Z]{2})$~', $_SERVER['REQUEST_URI'], $capture)) {
 			# création d'un sitemapindex
 			header('Content-type: text/xml');
+echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EOL;
 ?>
-<?xml version="1.0" encoding="<?= strtolower(PLX_CHARSET)?>"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <?php	foreach($this->aLangs as $lang) {?>
 	<sitemap>
