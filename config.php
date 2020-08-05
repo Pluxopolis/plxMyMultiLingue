@@ -26,7 +26,9 @@ if(!empty($_POST)) {
 			$array1[$flag] = $_POST['order'][$flag];
 			$array2[$flag] = $_POST['label'][$flag];
 		}
-		uasort($array1, create_function('$a, $b', 'return $a>$b;'));
+		//~ uasort($array1, create_function('$a, $b', 'return $a>$b;'));#Deprecated: Function create_function() is deprecated
+		function pmmlcmp($a, $b) {return $a>$b;}# Fonction de comparaison
+		uasort($array1, 'pmmlcmp');#Fix Deprecated: Function create_function() is deprecated
 	}
 	$plxPlugin->setParam('flags', implode(",",array_keys($array1)), 'string');
 	$plxPlugin->setParam('labels', serialize($array2), 'cdata');
@@ -97,18 +99,18 @@ $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam(
 		</tbody>
 	</table>
 	<fieldset>
-		<p class="field"><label for="id_lang_medias_folder"><?php echo $plxPlugin->lang('L_LANG_MEDIAS_FOLDER') ?>&nbsp;:</label></p>
+		<p class="field"><label for="id_lang_medias_folder"><?= $plxPlugin->lang('L_LANG_MEDIAS_FOLDER') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('lang_medias_folder',array('1'=>L_YES,'0'=>L_NO),$lang_medias_folder) ?>
-		<p class="field"><label for="id_lang_style"><?php echo $plxPlugin->lang('L_LANG_STYLE') ?>&nbsp;:</label></p>
+		<p class="field"><label for="id_lang_style"><?= $plxPlugin->lang('L_LANG_STYLE') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('lang_style',array('1'=>L_YES,'0'=>L_NO),$lang_style) ?>
-		<p class="field"><label for="id_display"><?php echo $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
+		<p class="field"><label for="id_display"><?= $plxPlugin->lang('L_DISPLAY') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('display',array('flag'=>$plxPlugin->getLang('L_FLAG'),'label'=>$plxPlugin->getLang('L_LABEL'),'listbox'=>$plxPlugin->getLang('L_LISTBOX')),$display) ?>
-		<p class="field"><label for="id_user_lang"><?php echo $plxPlugin->lang('L_USER_LANG') ?>&nbsp;:</label></p>
+		<p class="field"><label for="id_user_lang"><?= $plxPlugin->lang('L_USER_LANG') ?>&nbsp;:</label></p>
 		<?php plxUtils::printSelect('user_lang',array('1'=>L_YES,'0'=>L_NO),$user_lang) ?>
 	</fieldset>
 	<fieldset>
 		<p class="in-action-bar">
-			<?php echo plxToken::getTokenPostMethod() ?>
+			<?= plxToken::getTokenPostMethod() ?>
 			<input type="submit" name="submit" value="<?php $plxPlugin->lang('L_SAVE') ?>" />
 		</p>
 	</fieldset>

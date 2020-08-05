@@ -17,4 +17,3 @@ $LANG = array(
 'L_ERR_URL_REWRITING'				=> 'Proszę włączyć przepisywanie URL (Ustawienia > Ustawienia zaawansowane > Włącz przepisywanie URL > Tak)',
 'L_USER_LANG'						=> 'Preserve podłączonego język profilu użytkownika w obszarze administracji',
 );
-?>

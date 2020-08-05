@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<title><![CDATA[MultiLingue]]></title>
-	<author><![CDATA[Stephane F.]]></author>
-	<version>0.8.1#</version>
-	<date>##/04/2017</date>
-	<site>http://pluxopolis.net</site>
-	<description><![CDATA[Gestion multilingue de PluXml]]></description>
+	<title><![CDATA[MyMultiLingue]]></title>
+	<author><![CDATA[Stephane F., Thomas I. @sudwebdesign]]></author>
+	<version>0.9.0</version>
+	<date>05/08/2020</date>
+	<site>http://sudwebdesign.free.fr/depot.php#multi</site>
+	<description><![CDATA[Gestion multilingue de PluXml, #SWD]]></description>
 	<requirements></requirements>
+	<compatible>5.7,5.8,5.9</compatible>
+	<scope></scope>
 </document>
