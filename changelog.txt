@@ -1,4 +1,28 @@
-﻿version 0.8.1 (10/04/2017)
+Todo? Dépendances de cette catégorie : liste des identifiants par langue (option)
+
+version 0.9.1 (06/08/2020)
+Fix sitemap si les short open tag de PHP activés (merci garys02) https://forum.pluxml.org/discussion/comment/60915/#Comment_60915
+
+version 0.9.0 (05/08/2020)
+ready for next gen (autoload) : si les paramas ne sont pas chargés ds le constructeur, on les charge ;)
+Fix __CLASS__ adminPrepend le plugins ne sont pas a la bonne langue a leur 1er accès (du au fait de la session admin_lang est différente de data_lang. scope : si la langue de l'utilisateur est non respecté)
+Fix __CLASS__ __construct pour trouver la langue
+··· # traitement coté visiteur simplifié et expreg supprimées + trouve un site qui n'est pas a la racine du serveur
+Fix default_lang is duplicated : PreChauffageBegin : redirect without if have it
+Fix admin get lang : CLASS constructor add if PLX_ADMIN & no respect user admin lang : ADD $_SESSION['admin_lang'] = $this->lang; #TO CHANGE ON NEXT REDIRECT LOCATION
+Fix lors de "save config" (global (in other default lang) change default site language !!!
+[+] Nombreuses fonctions réécrites et 4 nouveau Hooks pour les Plugins disponibles
+	plxMyMultiLingueThemeEndHeadBegin
+	plxMyMultiLingueThemeEndHead
+	plxMyMultiLingueMyMultiLingue
+	plxMyMultiLingueMyMultiLingueFlag
+
+version 0.8.1# (##/04/2017)
+[+] Permet de changer de langue tout en restant sur la meme page (admin & public)
+Dans l'administration (testé avec plxMyShop entres autres) ::: bug a Solutionner : si dans core/admin/parametres_plugins.php et que l'on clique sur le drapeau il reste le '?' core/admin/parametres_plugins.php?
+Pour le coté public c'est en test, il manque peut-être des truc auquels j'ai pas pensé, Thomas
+
+version 0.8.1 (10/04/2017)
 BUG tableau PLX_MYMULTILINGUE non géré avec php 5.x+
 BUG Suppression fichier plugin update impossible (droit fichier)
 

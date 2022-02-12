@@ -17,4 +17,3 @@ $LANG = array(
 'L_ERR_URL_REWRITING'				=> 'Bitte aktivieren Sie URL-Rewriting (Einstellungen > Erweiterte Einstellungen > Aktivieren URL-Rewriting > Ja)',
 'L_USER_LANG'						=> 'Erhalten Sie die Benutzerprofilsprache im Administrationsbereich',
 );
-?>

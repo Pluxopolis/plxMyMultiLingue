@@ -1,56 +1,65 @@
-<?php
+<?php if (!defined('PLX_ROOT')) exit;
 /**
- * Plugin plxMyMultiLingue
- *
- * @author	Stephane F
- *
+ * Plugin plxMyMultiLingue 0.9.0
+ * @author	Stephane F, Thomas Ingles
  **/
 
 class plxMyMultiLingue extends plxPlugin {
-
-	# tableau contenant la liste des langues gÈrÈes
+	# tableau contenant la liste des langues g√©r√©es
 	public $aLangs = array();
-	# langue courante pour savoir dans quel dossier aller chercher les donnÈes dans le dossier data
+	# langue courante pour savoir dans quel dossier aller chercher les donn√©es dans le dossier data
 	public $lang = '';
 
 	/**
 	 * Constructeur de la classe
-	 *
-	 * @param	default_lang	langue par dÈfaut
+	 * @param	default_lang	langue par d√©faut
 	 * @return	stdio
-	 * @author	Stephane F
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function __construct($default_lang) {
-
-		$this->lang = "";
-
-		# recherche de la langue par dÈfaut de PluXml
+		$this->lang = $default_lang;
+		# recherche de la langue par d√©faut de PluXml
 		if(!isset($_SESSION['default_lang'])) {
 			$file = file_get_contents(path('XMLFILE_PARAMETERS'));
-			preg_match('#name="default_lang"><!\[CDATA\[([^\]]+)#',$file,$lang);
+			preg_match('~name="default_lang"><!\[CDATA\[([^\]]+)~',$file,$lang);
+			if(empty($lang))#Fix next gen
+				preg_match('~name="default_lang">([^<]+)~',$file,$lang);#fix config base of pluxml : on save param default lang change to present lang
 			$_SESSION['default_lang'] = empty($lang[1]) ? $default_lang : $lang[1];
 			$_SESSION['data_lang'] = $_SESSION['default_lang'];
+			//~ var_dump('Location: ' . $_SERVER['REQUEST_URI']);#Fix? Next gen Logon : langues des plugins = default_lang
+			//~ exit;
 		}
 
 		#===============================
-		# traitement cotÈ administration
+		# traitement cot√© administration
 		#===============================
 		if(defined('PLX_ADMIN')) {
-			if(isset($_GET["lang"]) AND !empty($_GET["lang"])) {
-				$this->lang = $_GET["lang"];
+			if(isset($_GET['lang']) AND !empty($_GET['lang'])) {# Changer de langue
+				# Fix next gen, if have unloaded params a this time '' === $this->getParam('user_lang')???
+				if(empty($this->plug)) {
+					$this->plug = array(
+						'dir' 			=> PLX_PLUGINS,
+						'name' 			=> __CLASS__,
+						'filename'		=> PLX_PLUGINS.__CLASS__.'/'.__CLASS__.'.php',
+						'parameters.xml'=> PLX_ROOT.PLX_CONFIG_PATH.'plugins/'.__CLASS__.'.xml',
+						'infos.xml'		=> PLX_PLUGINS.__CLASS__.'/infos.xml'
+					);
+					$this->loadParams();
+				}
+
+				$this->lang = $_GET['lang'];
 				$_SESSION['data_lang'] = $this->lang;
-
-				if(preg_match('/\?lang='.$this->lang.'$/', $_SERVER['REQUEST_URI']))
-					$redirect = 'index.php';
-				else
-					$redirect = preg_replace('/lang='.$this->lang.'&?/', '', $_SERVER['REQUEST_URI']);
-
-				# rÈinitialisation des dossiers pour le gestionnaire de mÈdias
-				unset($_SESSION["medias"]);
-				unset($_SESSION["folder"]);
+				if(!$this->getParam('user_lang')) {#fix change realy (plugin & more)
+					$_SESSION['admin_lang'] = $this->lang;
+				}
+				# Remove lang=fr[&] before redirect
+				$redirect = preg_replace('~lang='.$this->lang.'&?~', '', $_SERVER['REQUEST_URI']);
+				# R√©initialisation des dossiers pour le gestionnaire de m√©dias
+				unset($_SESSION['medias']);
+				unset($_SESSION['folder']);
 				unset($_SESSION['currentfolder']);
 
-				header("Location: ".$redirect);
+				header('Location: '.rtrim($redirect, '?'));#Fix Remove "?" at end if alone
 				exit;
 			}
 			elseif(isset($_SESSION['data_lang']))
@@ -58,43 +67,38 @@ class plxMyMultiLingue extends plxPlugin {
 			else
 				$this->lang = $_SESSION['default_lang'];
 		}
-		#===============================
-		# traitement cotÈ visiteur
-		#===============================
+		#=========================
+		# traitement cot√© visiteur
+		#=========================
 		else {
-			# recherche de la langue dans l'url si accËs ‡ partir du sitemap
-			if(preg_match("/sitemap\.php\/?([a-zA-Z]{2})?/", $_SERVER["REQUEST_URI"], $capture)) {
-				if(isset($capture[1]))
-					$this->lang = $capture[1];
-				else
-					$this->lang = $_SESSION['default_lang'];
-			} else {
+			# sitemap
+			if(strpos($_SERVER['REQUEST_URI'], 'sitemap.php') !== false)
+				$get = basename($_SERVER['REQUEST_URI']);#sitemap.php ou (ln)?
+			else# index & feed
 				$get = plxUtils::getGets();
-				if(preg_match('/^([a-zA-Z]{2})\/(.*)/', $get, $capture))
-					$this->lang = $capture[1];
-				else
-					$this->lang = $_SESSION['default_lang'];
-			}
+
+			if(strlen($get) == 2 and !is_numeric($get))#2 letter
+				$this->lang = strtolower($get);
+			elseif(isset($get[2]) and $get[2] ==='/' and !is_numeric($get[0].$get[1]))
+				$this->lang = strtolower($get[0].$get[1]);
+			else
+				$this->lang = $_SESSION['default_lang'];
 		}
-
 		# appel du constructeur de la classe plxPlugin (obligatoire)
-		parent::__construct($this->lang);
-
+		//~ parent::__construct($this->lang);
+		parent::__construct($default_lang);
 		# validation de la langue courante
 		$this->validateLang();
-
-		# droits pour accÈder ‡ la page config.php du plugin
+		# droits pour acc√©der √† la page config.php du plugin
 		$this->setConfigProfil(PROFIL_ADMIN);
-
-		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour Ítre utilisÈ par d'autres plugins
-		define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
-		
-		if(!defined('PLX_ADMIN')) $_SESSION['lang'] = $this->lang;
-
+		# PLX_MYMULTILINGUE contient la liste des langues et la langue courante - pour √™tre utilis√© par d'autres plugins
+		if(!defined('PLX_MYMULTILINGUE'))
+			define('PLX_MYMULTILINGUE', serialize(array('langs' => $this->getParam('flags'), 'lang' => $this->lang)));
+		if(!defined('PLX_ADMIN'))# AND !$this->getParam('user_lang')
+			$_SESSION['lang'] = $this->lang;
 		#====================================================
-		# dÈclaration des hooks communs frontend et backend
+		# d√©claration des hooks communs frontend et backend
 		#====================================================
-
 		# core/lib/class.plx.motor.php
 		$this->addHook('plxMotorConstructLoadPlugins', 'ConstructLoadPlugins');
 		$this->addHook('plxMotorPreChauffageBegin', 'PreChauffageBegin');
@@ -103,13 +107,10 @@ class plxMyMultiLingue extends plxPlugin {
 		$this->addHook('plxMotorGetStatiques', 'plxMotorGetStatiques');
 		$this->addHook('plxMotorParseArticle', 'plxMotorParseArticle');
 		$this->addHook('plxMotorRedir301', 'plxMotorRedir301');
-
 		#=====================================================
-		# DÈclaration des hooks pour la zone d'administration
+		# D√©claration des hooks pour la zone d'administration
 		#=====================================================
-
 		if(defined('PLX_ADMIN')) {
-
 			# core/lib/class.plx.admin.php
 			$this->addHook('plxAdminEditConfiguration', 'plxAdminEditConfiguration');
 			$this->addHook('plxAdminEditStatiquesUpdate', 'plxAdminEditStatiquesUpdate');
@@ -130,6 +131,10 @@ class plxMyMultiLingue extends plxPlugin {
 			$this->addHook('AdminArticleParseData', 'AdminArticleParseData');
 			$this->addHook('AdminArticleInitData', 'AdminArticleInitData');
 			$this->addHook('AdminArticleContent', 'AdminArticleContent');
+			if(version_compare(PLX_VERSION, '5.9.0', '<')) {# Since 0.9.0
+				# core/admin/statiques.php
+				$this->addHook('AdminStaticsPrepend', 'AdminStaticsPrepend');# Next gen ready (maybe)
+			}
 			# core/admin/statique.php
 			$this->addHook('AdminStatic', 'AdminStatic');
 			# core/admin/parametres_avances.php
@@ -137,13 +142,10 @@ class plxMyMultiLingue extends plxPlugin {
 			# core/admin/parametres_base.php
 			$this->addHook('AdminSettingsBaseTop', 'AdminSettingsBaseTop');
 		}
-
 		#======================================================
-		# DÈclaration des hooks pour la partie visiteur
+		# D√©claration des hooks pour la partie visiteur
 		#======================================================
-
 		else {
-
 			# core/lib/class.plx.show.php
 			$this->addHook('plxShowConstruct', 'plxShowConstruct');
 			$this->addHook('plxShowStaticListEnd', 'plxShowStaticListEnd');
@@ -161,54 +163,52 @@ class plxMyMultiLingue extends plxPlugin {
 			$this->addHook('SitemapBegin', 'SitemapBegin');
 			$this->addHook('SitemapEnd', 'SitemapEnd');
 
-			# hook utilisateur ‡ mettre dans le thËme
+			# hook utilisateur √† mettre dans le th√®me
 			$this->addHook('MyMultiLingue', 'MyMultiLingue');
 
 		}
 	}
-	
+	# Donne de la langue en cours
 	public static function _Lang() {
 		$def = unserialize(PLX_MYMULTILINGUE);
 		if(isset($def['lang'])) {
 			return $def['lang'];
 		}
 	}
-	
+	# Donnes les langues actives. Un explode(',', $langs) est une id√©e ;)
 	public static function _Langs() {
 		$def = unserialize(PLX_MYMULTILINGUE);
 		if(isset($def['langs'])) {
 			return $def['langs'];
 		}
-	}	
+	}
 
-	/*************************************/
-	/* gestion active/deactive/update    */
-	/*************************************/
+	/**********************************/
+	/* gestion active/deactive/update */
+	/**********************************/
 
 	/**
-	 * MÈthode exÈcutÈe ‡ l'activation du plugin
-	 *
+	 * M√©thode ex√©cut√©e √† l'activation du plugin
 	 * @author	Stephane F
 	 **/
 	public function onActivate() {
-		if(file_exists(PLX_PLUGINS.'plxMyMultiLingue/update')) chmod(PLX_PLUGINS.'plxMyMultiLingue/update',0644); # en attendant la modif en natif dans class.plx.plugins.php
+		if(file_exists(PLX_PLUGINS.__CLASS__.'/update')) @chmod(PLX_PLUGINS.__CLASS__.'/update',0644); # en attendant la modif en natif dans class.plx.plugins.php
 		# Mise en cache du css partie administration
-		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/admin.css';
-		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingue.admin.css';
+		$src_cssfile = PLX_PLUGINS.__CLASS__.'/css/admin.css';
+		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/'.__CLASS__.'.admin.css';
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
 		# Mise en cache du ccs partie visiteurs
-		$src_cssfile = PLX_PLUGINS.'plxMyMultiLingue/css/site.css';
-		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/plxMyMultiLingue.site.css';
+		$src_cssfile = PLX_PLUGINS.__CLASS__.'/css/site.css';
+		$dst_cssfile = PLX_ROOT.PLX_CONFIG_PATH.'plugins/'.__CLASS__.'.site.css';
 		plxUtils::write(file_get_contents($src_cssfile), $dst_cssfile);
-		# RÈgÈnÈration des caches css
+		# R√©g√©n√©ration des caches css
 		$plxAdmin = plxAdmin::getInstance();
 		$plxAdmin->plxPlugins->cssCache('admin');
 		$plxAdmin->plxPlugins->cssCache('site');
 	}
 
 	/**
-	 * MÈthode exÈcutÈe ‡ la dÈsactivation du plugin
-	 *
+	 * M√©thode ex√©cut√©e √† la d√©sactivation du plugin
 	 * @author	Stephane F
 	 **/
 	public function onDeactivate() {
@@ -222,20 +222,18 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/**
-	 * MÈthode appelÈe par la classe plxPlugins et executÈe si un fichier "upadate" est prÈsent dans le dossier du plugin
-	 * On demande une mise ‡ jour du cache css
-	 * Nouvelles rËgles css pour le plugin avec PluXml 5.6 et PluCSS 1.2 pour afficher les drapeaux dans l'action bar
-	 *
+	 * M√©thode appel√©e par la classe plxPlugins et execut√©e si un fichier "upadate" est pr√©sent dans le dossier du plugin
+	 * On demande une mise √† jour du cache css
+	 * Nouvelles r√®gles css pour le plugin avec PluXml 5.6 et PluCSS 1.2 pour afficher les drapeaux dans l'action bar
 	 * @author	Stephane F
 	 **/
 	public function onUpdate() {
-		# demande de mise ‡ jour du cache css
+		# demande de mise √† jour du cache css
 		return array('cssCache' => true);
 	}
 
 	/**
-	 * MÈthode qui crÈer les rÈpertoires des langues (Ècran de config du plugin)
-	 *
+	 * M√©thode qui cr√©er les r√©pertoires des langues (√©cran de config du plugin)
 	 * @author	Stephane F
 	 **/
 	public function mkDirs() {
@@ -266,15 +264,30 @@ class plxMyMultiLingue extends plxPlugin {
 		}
 
 	}
+	/**
+	* Pour garder la compatibilit√© ascendante et montante (Origin PluXml 5.7)
+	* M√©thode qui retourne une chaine de caract√®res nettoy√©e des cdata
+	* M√©thode qui controle une chaine de caract√®res pour un fichier .xml
+	* Si la chaine est vide ou num√©rique : la chaine est retourn√©e sans modification
+	* Autrement, la chaine est encadr√©e automatiquement par "<![CDATA[ ... ]]>" si besoin.
+	* Si "<![CDATA[" et "]]>" sont pr√©sents √† l'int√©rieur de la chaine, alors conversion
+	* en entit√©s HTML.
+	*
+	* @param	str		chaine de caract√®res √† nettoyer
+	* @return	string	chaine de caract√®res nettoy√©e
+	* @author	Stephane F,
+	**/
+	public static function cdataCheck($str) {
+		$str = str_ireplace('!CDATA', '&#33;CDATA', $str);
+		return str_replace(']]>', ']]&gt;', $str);
+	}
 
 	/**
-	 * MÈthode qui vÈrifie que la langue courante du site est valide
-	 *
+	 * M√©thode qui v√©rifie que la langue courante du site est valide
 	 * @author	Stephane F
 	 **/
 	public function validateLang() {
-
-		# rÈcupÈration des langues enregistrÈes dans le fichier de configuration du plugin
+		# r√©cup√©ration des langues enregistr√©es dans le fichier de configuration du plugin
 		if($this->getParam('flags')!='')
 			$this->aLangs = explode(',', $this->getParam('flags'));
 
@@ -288,97 +301,101 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 
 	/**
-	 * MÈthode qui modifie les chemins de PluXml en tenant compte de la langue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie les chemins de PluXml en tenant compte de la langue
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function ConstructLoadPlugins() {
+		echo '<?php ';?>
+			# initialisation n¬∞ page statique comme page d accueil (recup√©r√©e dans plxMotorGetStatiques)
+			$this->aConf['homestatic'] = '';
+?><?php
 
-		echo '<?php
-			# initialisation n∞ page statique comme page d accueil (recupÈrÈe dans plxMotorGetStatiques)
-			$this->aConf["homestatic"] = "";
-		?>';
-
-		# modification des chemins d'accËs
-		echo '<?php
-			$this->aConf["default_lang"] ="'.$this->lang.'";
-			$this->aConf["racine_articles"] = $this->aConf["racine_articles"]."'.$this->lang.'/";
-			$this->aConf["racine_statiques"] = $this->aConf["racine_statiques"]."'.$this->lang.'/";
-			$this->aConf["racine_commentaires"] = $this->aConf["racine_commentaires"]."'.$this->lang.'/";
-			path("XMLFILE_CATEGORIES", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/categories.xml");
-			path("XMLFILE_STATICS", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/statiques.xml");
-			path("XMLFILE_TAGS", PLX_ROOT.PLX_CONFIG_PATH."'.$this->lang.'/tags.xml");
-		?>';
+		# modification des chemins d'acc√®s
+		echo '<?php $this_lang = "'.$this->lang.'";'; ?>
+			$this->aConf['default_lang'] = $this_lang;
+			$this->aConf['racine_articles'] = $this->aConf['racine_articles'].$this_lang.'/';
+			$this->aConf['racine_statiques'] = $this->aConf['racine_statiques'].$this_lang.'/';
+			$this->aConf['racine_commentaires'] = $this->aConf['racine_commentaires'].$this_lang.'/';
+			path('XMLFILE_CATEGORIES', PLX_ROOT.PLX_CONFIG_PATH.$this_lang.'/categories.xml');
+			path('XMLFILE_STATICS', PLX_ROOT.PLX_CONFIG_PATH.$this_lang.'/statiques.xml');
+			path('XMLFILE_TAGS', PLX_ROOT.PLX_CONFIG_PATH.$this_lang.'/tags.xml');
+?><?php
 
 		# modification des infos du site en fonction de la langue
-		if(file_exists(PLX_ROOT.PLX_CONFIG_PATH."plugins/plxMyMultiLingue.xml")) {
-			echo '<?php
-				$this->aConf["title"] = "'.$this->getParam("title_".$this->lang).'";
-				$this->aConf["description"] = "'.$this->getParam("description_".$this->lang).'";
-				$this->aConf["meta_description"] = "'.$this->getParam("meta_description_".$this->lang).'";
-				$this->aConf["meta_keywords"] = "'.$this->getParam("meta_keywords_".$this->lang).'";
-			?>';
-			if($this->getParam("lang_style")) {
-				echo '<?php
-					$theme = "'.$this->getParam("style_".$this->lang).'";
-					if($theme!="" AND is_dir(PLX_ROOT.$this->aConf["racine_themes"].$theme)) {
-						$this->aConf["style"] = $theme;
+		if(file_exists(PLX_ROOT.PLX_CONFIG_PATH.'plugins/'.__CLASS__.'.xml')) {# Config exist
+			echo '<?php '; ?>
+				$this->aConf['title'] = '<?= $this->getParam('title_'.$this->lang) ?>';
+				$this->aConf['description'] = '<?= $this->getParam('description_'.$this->lang) ?>';
+				$this->aConf['meta_description'] = '<?= $this->getParam('meta_description_'.$this->lang) ?>';
+				$this->aConf['meta_keywords'] = '<?= $this->getParam('meta_keywords_'.$this->lang) ?>';
+?><?php
+			if($this->getParam('lang_style')) {
+				echo '<?php '; ?>
+					$theme = '<?= $this->getParam('style_'.$this->lang) ?>';
+					if($theme!='' AND is_dir(PLX_ROOT.$this->aConf['racine_themes'].$theme)) {
+						$this->aConf['style'] = $theme;
 						$this->style = $theme;
 					}
-				?>';
+?><?php
 			}
-		}
+		}#FI Config exist
 
-		# s'il faut un dossier medias diffÈrent pour chaque langue
+		# s'il faut un dossier medias diff√©rent pour chaque langue
 		if($this->getParam('lang_medias_folder')) {
-			echo '<?php
-				$this->aConf["medias"] = $this->aConf["medias"]."'.$this->lang.'/";
-			?>';
+			echo '<?php '; ?>
+				$this->aConf['medias'] = $this->aConf['medias'].$this_lang.'/';
+?><?php
 		}
 	}
 
 	/**
-	 * MÈthode qui vÈrifie que la langue est bien prÈsente dans l'url
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui v√©rifie que la langue est bien pr√©sente dans l'url
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function PreChauffageBegin() {
-
-		echo '<?php
-			# utilisation de preg_replace pour Ítre sur que la chaine commence bien par la langue
-			$this->get = preg_replace("/^'.$this->lang.'\/(.*)/", "$1", $this->get);
-		?>';
-
+		# utilisation de preg_replace pour √™tre sur que la chaine commence bien par une langue
+		if($this->lang != $_SESSION['default_lang']){# No default lang
+			echo '<?php ';?>$this->get = preg_replace('~^(<?=$this->lang?>)/?(.*)~', "$2", $this->get);?><?php
+		}else{# No duplicate content 4 default lang : remove it if find & redirect
+			echo '<?php ';?>
+			$countr = 0;
+			$this->get = preg_replace('~^(<?=$this->lang?>/?)~', '', $this->get, 1, $countr);
+			if($countr){
+				header('Location: ' . $this->racine . $this->get);
+				exit;
+			}
+?><?php
+		}
 	}
 
 	/**
-	 * MÈthode qui rÈcupËre les dÈpendances sur les articles et les pages statiques
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui r√©cup√®re les d√©pendances sur les articles et les pages statiques
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 
 	public function plxMotorDemarrageEnd() {
-		echo '<?php
+		echo '<?php $this_lang = "'.$this->lang.'"; $this_class = "' . __CLASS__ .'";'; ?>
 		$this->infos_arts = null;
 		$this->infos_statics = null;
 
-		if($this->mode=="article") {
+		if($this->mode=='article') {
 			if(isset($this->plxRecord_arts)) {
-				if($deplng = $this->plxRecord_arts->f("deplng")) {
-					foreach($deplng as $lang => $ident) {
-						# rÈcupÈration du titre de l article correspondant ‡ la langue
-						$root = PLX_ROOT.$this->aConf["racine_articles"];
-						$root = str_replace("/'.$this->lang.'/", "/".$lang."/", $root);
+				if($deplng = $this->plxRecord_arts->f('deplng')) {
+					foreach($deplng as $mml_lang => $ident) {
+						# r√©cup√©ration du titre de l article correspondant √† la langue
+						$root = PLX_ROOT.$this->aConf['racine_articles'];
+						$root = str_replace('/'.$this_lang.'/', '/'.$mml_lang.'/', $root);
 						$folder = opendir($root);
 						while($file = readdir($folder)) {
-							if(preg_match("/^".$ident."(.*).xml$/", $file)) {
+							if(preg_match('/^'.$ident.'(.*).xml$/', $file)) {
 								$uniqart = $this->parseArticle($root.$file);
-								if($uniqart["date"] <= date("YmdHi")) {
-									$url = "/article".intval($ident)."/".$uniqart["url"];
-									if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
-									$this->infos_arts[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
-									$this->infos_arts[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($uniqart["title"])."</a>";
-									$this->infos_arts[$lang]["url"] = $url;
+								if($uniqart['date'] <= date('YmdHi')) {
+									$url = '/article'.intval($ident).'/'.$uniqart['url'];
+									#if($mml_lang!=$_SESSION['default_lang']) $url = $mml_lang.$url;#BUG with 1st default lang
+									$url = $mml_lang.$url;#Fix hook4art
+									$this->infos_arts[$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
+									$this->infos_arts[$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($uniqart['title']).'</a>';
+									$this->infos_arts[$mml_lang]['url'] = $url;
 								}
 								break;
 							}
@@ -388,50 +405,50 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 		}
-		elseif($this->mode=="static") {
+		elseif($this->mode=='static') {
 			$deplng = null;
-			if(isset($this->aStats[$this->cible]["deplng"]) AND !empty($this->aStats[$this->cible]["deplng"])) {
-				$values = explode("|", $this->aStats[$this->cible]["deplng"]);
+			if(isset($this->aStats[$this->cible]['deplng']) AND strpos($this->aStats[$this->cible]['deplng'],',') !== FALSE) {
+				$values = explode('|', $this->aStats[$this->cible]['deplng']);
 				foreach($values as $k => $v) {
-					$tmp = explode(",", $v);
+					$tmp = explode(',', $v);
 					$deplng[$tmp[0]] = $tmp[1];
 				}
 			}
 			if($deplng) {
-				foreach($deplng as $lang => $id) {
-					# rÈcupÈration du titre de la page statique correspondant ‡ la langue
+				foreach($deplng as $mml_lang => $id) {
+					# r√©cup√©ration du titre de la page statique correspondant √† la langue
 					$root = PLX_ROOT.PLX_CONFIG_PATH;
-					$root = str_replace("/'.$this->lang.'/", $lang, $root);
-					$filename=$root.$lang."/statiques.xml";
+					$root = str_replace('/'.$this_lang.'/', $mml_lang, $root);
+					$filename=$root.$mml_lang.'/statiques.xml';
 					if(is_file($filename)) {
 						# Mise en place du parseur XML
-						$data = implode("",file($filename));
+						$data = implode('',file($filename));
 						$parser = xml_parser_create(PLX_CHARSET);
 						xml_parser_set_option($parser,XML_OPTION_CASE_FOLDING,0);
 						xml_parser_set_option($parser,XML_OPTION_SKIP_WHITE,0);
 						xml_parse_into_struct($parser,$data,$values,$iTags);
 						xml_parser_free($parser);
-						if(isset($iTags["statique"]) AND isset($iTags["name"])) {
-							$nb = sizeof($iTags["name"]);
-							$size=ceil(sizeof($iTags["statique"])/$nb);
+						if(isset($iTags['statique']) AND isset($iTags['name'])) {
+							$nb = sizeof($iTags['name']);
+							$size=ceil(sizeof($iTags['statique'])/$nb);
 							for($i=0;$i<$nb;$i++) {
-								$attributes = $values[$iTags["statique"][$i*$size]]["attributes"];
-								$number = $attributes["number"];
+								$attributes = $values[$iTags['statique'][$i*$size]]['attributes'];
+								$number = $attributes['number'];
 								if($number==$id) {
-									$active = intval($attributes["active"]);
+									$active = intval($attributes['active']);
 									if($active) {
-										$homestatic = plxUtils::getValue($values[$iTags["homeStatic"][$i]]["value"]);
+										$homestatic = plxUtils::getValue($values[$iTags['homeStatic'][$i]]['value']);
 										if($homestatic)
-											$url = $this->racine.$lang."/";
+											$url = $this->racine.$mml_lang.'/';
 										else {
-											$url = "/static".intval($id)."/".$attributes["url"];
-											if($lang!=$_SESSION["default_lang"]) $url = $lang.$url;
+											$url = $mml_lang.'/static'.intval($id).'/'.$attributes['url'];
+											//if($mml_lang!=$_SESSION['default_lang']) $url = $mml_lang.$url;
 										}
-										$title = plxUtils::getValue($values[$iTags["name"][$i]]["value"]);
-										$this->infos_statics[$lang]["img"] = "<img class=\"lang\" src=\"".$this->urlRewrite(PLX_PLUGINS."plxMyMultiLingue/img/".$lang.".png")."\" alt=\"".$lang."\" />";
-										$this->infos_statics[$lang]["link"] = "<a href=\"".$url."\">".plxUtils::strCheck($title)."</a>";
-										$this->infos_statics[$lang]["url"] = $url;
-										$this->infos_statics[$lang]["homestatic"] = $homestatic;
+										$title = plxUtils::getValue($values[$iTags['name'][$i]]['value']);
+										$this->infos_statics[$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
+										$this->infos_statics[$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($title).'</a>';
+										$this->infos_statics[$mml_lang]['url'] = $url;
+										$this->infos_statics[$mml_lang]['homestatic'] = $homestatic;
 									}
 									break;
 								}
@@ -441,84 +458,77 @@ class plxMyMultiLingue extends plxPlugin {
 				}
 			}
 		}
-
-		?>';
+?><?php
 	}
 
 	/**
-	 * MÈthode qui rÈdirige vers la bonne url aprËs soumission d'un commentaire
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui r√©dirige vers la bonne url apr√®s soumission d'un commentaire
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function plxMotorDemarrageNewCommentaire() {
-
 		if($_SESSION['default_lang']!==$this->lang) {
-			echo '<?php
-				$url = $this->urlRewrite("?'.$this->lang.'/article".intval($this->plxRecord_arts->f("numero"))."/".$this->plxRecord_arts->f("url"));
-			?>';
+			echo '<?php	'; ?>
+			$url = $this->urlRewrite('?<?= $this->lang?>/article'.intval($this->plxRecord_arts->f('numero')).'/'.$this->plxRecord_arts->f('url'));
+?><?php
 		}
 	}
 
 	/**
-	 * MÈthode qui rÈcupËre les dÈpendances des pages statiques et la page statique comme page d'accueil
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui r√©cup√®re les d√©pendances des pages statiques et la page statique comme page d'accueil
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function plxMotorGetStatiques() {
-
-		echo '<?php
-			# Recuperation du numÈro la page statique d\'accueil
-			if(isset($iTags["homeStatic"])) {
-				$homeStatic = plxUtils::getValue($iTags["homeStatic"][$i]);
-				$this->aStats[$number]["homeStatic"] = plxUtils::getValue($values[$homeStatic]["value"]);
-				if($this->aStats[$number]["homeStatic"]) {
-					# n∞ de la page statique comme page d accueil
-					$this->aConf["homestatic"] = $number;
+		echo '<?php '; ?>
+			# Recuperation du num√©ro la page statique d\'accueil
+			if(isset($iTags['homeStatic'])) {
+				$homeStatic = plxUtils::getValue($iTags['homeStatic'][$i]);
+				$this->aStats[$number]['homeStatic'] = plxUtils::getValue($values[$homeStatic]['value']);
+				if($this->aStats[$number]['homeStatic']) {
+					# n¬∞ de la page statique comme page d accueil
+					$this->aConf['homestatic'] = $number;
 				}
 			} else {
-				$this->aStats[$number]["homeStatic"] = 0;
+				$this->aStats[$number]['homeStatic'] = 0;
 			}
-			# Recuperation des dÈpendances des pages statiques
-			if(isset($iTags["deplng"])) {
-				$deplng = plxUtils::getValue($iTags["deplng"][$i]);
-				$this->aStats[$number]["deplng"] = plxUtils::getValue($values[$deplng]["value"]);
+			# Recuperation des d√©pendances des pages statiques
+			if(isset($iTags['deplng'])) {
+				$deplng = plxUtils::getValue($iTags['deplng'][$i]);
+				$this->aStats[$number]['deplng'] = plxUtils::getValue($values[$deplng]['value']);
 			} else {
-				$this->aStats[$number]["deplng"] = array();
+				$this->aStats[$number]['deplng'] = array();
 			}
-		?>';
+?><?php
 	}
 
 	/**
-	 * MÈthode qui rÈcupËre les dÈpendances entre articles dans le fichier .xml
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui r√©cup√®re les d√©pendances entre articles dans le fichier .xml
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function plxMotorParseArticle() {
-		echo '<?php
-			if(isset($iTags["deplng"])) {
-				foreach($iTags["deplng"] as $k => $v) {
-					$key = $values[$v]["value"];
-					$val = explode(",", $key);
-					$art["deplng"][$val[0]] = $val[1];
+		echo '<?php '; ?>
+			if(isset($iTags['deplng'])) {
+				foreach($iTags['deplng'] as $k => $v) {
+					$key = $values[$v]['value'];
+					$val = explode(',', $key);
+					$art['deplng'][$val[0]] = $val[1];
 				}
 			} else {
 				$art["deplng"] = null;
 			}
-			?>';
+?><?php
 	}
 
 	/**
-	 * MÈthode qui s'assure que la langue est prÈsente dans les liens de redirection de type 301
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui s'assure que la langue est pr√©sente dans les liens de redirection de type 301
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function plxMotorRedir301() {
 		if($this->lang!=$_SESSION['default_lang']) {
-			echo '<?php
-				if(!preg_match("#".$this->racine."'.$this->lang.'/#", $url)) {
-					$url = str_replace($this->racine, $this->racine."'.$this->lang.'/", $url);
+			echo '<?php $this_lang = "'.$this->lang.'";'; ?>
+				if(!preg_match('#'.$this->racine.$this_lang.'/#', $url)) {
+					$url = str_replace($this->racine, $this->racine.$this_lang.'/', $url);
 				}
-			?>';
+?><?php
 		}
 	}
 
@@ -527,101 +537,97 @@ class plxMyMultiLingue extends plxPlugin {
 	/********************************/
 
 	/**
-	 * MÈthode qui modifie les chemins de PluXml en supprimant la langue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie les chemins de PluXml en supprimant la langue
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function plxAdminEditConfiguration() {
-
-		# sauvegarde des paramËtres pris en compte en fonction de la langue
-		echo '<?php
-		if(preg_match("/parametres_base/",basename($_SERVER["SCRIPT_NAME"]))) {
-			$_lang = $this->aConf["default_lang"];
-			$plugin = $this->plxPlugins->aPlugins["plxMyMultiLingue"];
-			$plugin->setParam("title_".$_lang, $_POST["title"], "cdata");
-			$plugin->setParam("description_".$_lang, $_POST["description"], "cdata");
-			$plugin->setParam("meta_description_".$_lang, $_POST["meta_description"], "cdata");
-			$plugin->setParam("meta_keywords_".$_lang, $_POST["meta_keywords"], "cdata");
+		# sauvegarde des param√®tres pris en compte en fonction de la langue
+		echo '<?php '; ?>
+		$_lang = $this->aConf['default_lang'];
+		if(preg_match('/parametres_base/',basename($_SERVER['SCRIPT_NAME']))) {
+			$plugin = $this->plxPlugins->aPlugins['<?= __CLASS__ ?>'];
+			$plugin->setParam('title_'.$_lang, $_POST['title'], 'cdata');
+			$plugin->setParam('description_'.$_lang, $_POST['description'], 'cdata');
+			$plugin->setParam('meta_description_'.$_lang, $_POST['meta_description'], 'cdata');
+			$plugin->setParam('meta_keywords_'.$_lang, $_POST['meta_keywords'], 'cdata');
 			$plugin->saveParams();
-			# pour etre rÈactualiser au chargement du plugin si on a change la langue par defaut du site
-			unset($_SESSION["default_lang"]);
+			# pour etre r√©actualiser au chargement du plugin si on a change la langue par defaut du site
+			unset($_SESSION['default_lang']);
 		}
-		?>';
-
-		# theme diffÈrent pour chaque langue
-		if($this->getParam("lang_style")) {
-			echo '<?php
-				if(preg_match("/parametres_themes/",basename($_SERVER["SCRIPT_NAME"]))) {
-					$_lang = $this->aConf["default_lang"];
-					$plugin = $this->plxPlugins->aPlugins["plxMyMultiLingue"];
-					$plugin->setParam("style_".$_lang, $_POST["style"], "cdata");
+?><?php
+		# theme diff√©rent pour chaque langue
+		if($this->getParam('lang_style')) {
+			echo '<?php '; ?>
+				if(preg_match('/parametres_themes/',basename($_SERVER['SCRIPT_NAME']))) {
+					$plugin = $this->plxPlugins->aPlugins['<?= __CLASS__ ?>'];
+					$plugin->setParam('style_'.$_lang, $_POST['style'], 'cdata');
 					$plugin->saveParams();
-					# pour ne pas Ècraser le style de l installation
-					$_POST["style"] = $this->aConf["style"];
+					# pour ne pas √©craser le style de l installation
+					$_POST['style'] = $this->aConf['style'];
 				}
-			?>';
+?><?php
 		}
-
-		# pour ne pas Ècraser la langue par dÈfaut, les chemins racine_articles, racine_statiques et racine_commentaires
-		echo '<?php
-			$global["default_lang"] = $_SESSION["default_lang"];
-			$global["racine_articles"] = str_replace("/'.$this->lang.'/", "/", $global["racine_articles"]);
-			$global["racine_statiques"] = str_replace("/'.$this->lang.'/", "/", $global["racine_statiques"]);
-			$global["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $global["racine_commentaires"]);
-		?>';
-
-		# pour ne pas Ècraser le chemin du dossier des medias
+		# pour ne pas √©craser la langue par d√©faut, les chemins racine_articles, racine_statiques et racine_commentaires
+		# Fix add /fr/fr/en/de/ when save statics on 5.8.3 pluxml release (maybe before) : $global is for <= 5.7 AND $content is for >= 5.8
+		echo '<?php $this_lang = "'.$this->lang.'";'; ?>
+		if(!isset($content['racine_articles'])){
+			#$content['default_lang'] = $global['default_lang'] = isset($_SESSION['default_lang'])? $_SESSION['default_lang']:$this->aConf['default_lang'];#;
+			$content['racine_articles'] = $global['racine_articles'] = str_replace('/'.$this_lang.'/', '/', $this->aConf['racine_articles']);
+			$content['racine_statiques'] = $global['racine_statiques'] = str_replace('/'.$this_lang.'/', '/', $this->aConf['racine_statiques']);
+			$content['racine_commentaires'] = $global['racine_commentaires'] = str_replace('/'.$this_lang.'/', '/', $this->aConf['racine_commentaires']);
+		}
+?><?php
+		# pour ne pas √©craser le chemin du dossier des medias
 		if($this->getParam('lang_medias_folder')) {
-			echo '<?php $global["medias"] = str_replace("/'.$this->lang.'/", "/", $global["medias"]); ?>';
+			echo '<?php '?>
+				$content['medias'] = $global['medias'] = str_replace('/'.$this_lang.'/', '/', $this->aConf['medias']);
+?><?php
 		}
-
 	}
 
 	/**
-	 * MÈthode qui ajoute une nouvelle clÈ dans le fichier xml des pages statiques pour savoir
-	 * si une page statique est configurÈe comme page d'accueil (valeur boolean 0/1)
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui ajoute une nouvelle cl√© dans le fichier xml des pages statiques pour savoir
+	 * si une page statique est configur√©e comme page d'accueil (valeur boolean 0/1)
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function plxAdminEditStatiquesUpdate() {
-		echo '<?php
-			if(!isset($content["homeStatic"]))
-				$this->aStats[$static_id]["homeStatic"] = 0;
+		echo '<?php '; ?>
+			if(!isset($content['homeStatic']))
+				$this->aStats[$static_id]['homeStatic'] = 0;
 			else
-				$this->aStats[$static_id]["homeStatic"] = $content["homeStatic"][0]==$static_id;
-		?>';
+				$this->aStats[$static_id]['homeStatic'] = $content['homeStatic'][0]==$static_id;
+?><?php
 	}
 
 	/**
-	 * MÈthode qui enregistre une nouvelle clÈ dans le fichier xml des pages statiques pour stocker
-	 * le n∞ de la page statique d'accueil
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui enregistre une nouvelle cl√© dans le fichier xml des pages statiques pour stocker
+	 * le n¬∞ de la page statique d'accueil et les id des pages pour les langues li√©es
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function plxAdminEditStatiquesXml() {
-		echo '<?php
-			if(!isset($static["homeStatic"])) $static["homeStatic"] = 0;
-			$xml .= "<homeStatic><![CDATA[".plxUtils::cdataCheck($static["homeStatic"])."]]></homeStatic>";
-			# dÈpendances des pages statiques
-			if(!isset($static["deplng"])) $static["deplng"]="";
-			$xml .= "<deplng><![CDATA[".plxUtils::cdataCheck($static["deplng"])."]]></deplng>";
-		?>';
+		echo '<?php '; ?>
+			if(!isset($static['homeStatic'])) $static['homeStatic'] = 0;
+#			$xml .= '<homeStatic><![CDATA['.plxUtils::cdataCheck($static['homeStatic']).']]></homeStatic>';#5.7
+			$xml .= '<homeStatic><![CDATA['.<?=__CLASS__?>::cdataCheck($static['homeStatic']).']]></homeStatic>';#ALLBySelf
+			# d√©pendances des pages statiques
+			if(!isset($static['deplng'])) $static['deplng']='';
+#			$xml .= '<deplng><![CDATA['.plxUtils::cdataCheck($static['deplng']).']]></deplng>';#5.7
+			$xml .= '<deplng><![CDATA['.<?=__CLASS__?>::cdataCheck($static['deplng']).']]></deplng>';#ALLBySelf
+?><?php
 	}
 
 	/**
-	 * MÈthode qui enregistre dans les articles les dÈpendances (identifiants par langue)
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui enregistre dans les articles les d√©pendances (identifiants par langue)
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function plxAdminEditArticleXml() {
-
 		if(isset($_POST['deplng'])) {
 			foreach($_POST['deplng'] as $lang => $ident) {
 				$id = intval($ident);
 				if($id>0) {
-					echo '<?php
-						$xml .= "\t<deplng><![CDATA['.$lang.",".str_pad($id,4,"0",STR_PAD_LEFT).']]></deplng>\n";
-					?>';
+					echo '<?php ';?>
+						$xml .= '	<deplng><![CDATA[<?=self::cdataCheck($lang.','.str_pad($id,4,'0',STR_PAD_LEFT))?>]]></deplng>' . PHP_EOL;
+					?><?php
 				}
 
 			}
@@ -629,229 +635,238 @@ class plxMyMultiLingue extends plxPlugin {
 	}
 
 	/**
-	 * MÈthode qui enregistre les dÈpendances dans le fichier statiques.xml de la langue courante
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui enregistre les d√©pendances dans le fichier statiques.xml de la langue courante
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function plxAdminEditStatique() {
-		echo '<?php
-			if(isset($content["deplng"])) {
+		echo '<?php '; ?>
+			if(isset($content['deplng'])) {
 				$values = array();
-				foreach($content["deplng"] as $lang => $ident) {
+				foreach($content['deplng'] as $mml_lang => $ident) {
 					$id = intval($ident);
 					if($id>0) {
-						$values[] = $lang.",".str_pad($id,3,"0",STR_PAD_LEFT);
+						$values[] = $mml_lang.','.str_pad($id,3,'0',STR_PAD_LEFT);
 					}
 				}
-				$this->aStats[$content["id"]]["deplng"] = implode("|", $values);
+				$this->aStats[$content['id']]['deplng'] = implode('|', $values);
 			}
-		?>';
+?><?php
 	}
 
-	/********************************/
-	/* core/lib/class.plx.show.php 	*/
-	/********************************/
+	/*******************************/
+	/* core/lib/class.plx.show.php */
+	/*******************************/
 
 	/**
-	 * MÈthode qui modifie l'url des pages statiques en rajoutant la langue courante dans le lien du menu de la page
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie l'url des pages statiques en rajoutant la langue courante dans le lien du menu de la page
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function plxShowStaticListEnd() {
-
 		if($_SESSION['default_lang']==$this->lang) return;
-
-		echo '<?php
+		echo '<?php '; ?>
 		foreach($menus as $idx => $menu) {
-			if($this->plxMotor->aConf["urlrewriting"]) {
-				$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine."'.$this->lang.'/", $menu);
+			if($this->plxMotor->aConf['urlrewriting']) {
+				$menus[$idx] = str_replace($this->plxMotor->racine, $this->plxMotor->racine.'<?= $this->lang ?>/', $menu);
 			}
 		}
-		?>';
+?><?php
 	}
 
-	/********************************/
-	/* core/admin/top.php 			*/
-	/********************************/
+	/**********************/
+	/* core/admin/top.php */
+	/**********************/
 
 	/**
-	 * MÈthode qui affiche les langues sous forme de drapeaux, nom ou liste dÈroulante
-	 *
+	 * M√©thode qui affiche les langues sous forme de drapeaux, nom ou liste d√©roulante
 	 * return	stdio
-	 * @author	Stephane F
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function AdminTopBottom() {
 
 		$aLabels = unserialize($this->getParam('labels'));
 
 		if($this->aLangs) {
-			echo '<div id="langs">';
-			# affichage sous forme de liste dÈroulante
+			$ruri = '';
+			if(strstr($_SERVER['REQUEST_URI'],'?')){
+				$ruri = htmlentities('&'.substr($_SERVER['REQUEST_URI'], (strpos($_SERVER['REQUEST_URI'], '?') + 1)));
+			}
+			echo '<div id="mmlangs">';
+			# affichage sous forme de liste d√©roulante
 			if($this->getParam('display')=='listbox') {
-				echo "<select onchange=\"self.location='?lang='+this.options[this.selectedIndex].value\">";
+				echo '<select onchange="self.location=\'?lang=\'+this.options[this.selectedIndex].value">';
 				foreach($this->aLangs as $idx=>$lang) {
 					$sel = $this->lang==$lang ? ' selected="selected"':'';
-					echo '<option value="'.$lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+					echo '<option value="'.$lang.$ruri.'"'.$sel.'>'. $aLabels[$lang].'</option>';
 				}
 				echo '</select>';
 			# affichage sous forme de drapeaux ou de texte
 			} else {
 				foreach($this->aLangs as $lang) {
-					$sel = $this->lang==$lang ? " active" : "";
+					$sel = $this->lang==$lang ? ' active' : '';
 					if($this->getParam('display')=='flag') {
-						$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png" alt="'.$lang.'" />';
-						echo '<a href="?lang='.$lang.'">'.$img.'</a>';
+						$img = '<img class="lang'.$sel.'" src="'.PLX_PLUGINS.__CLASS__.'/img/'.$lang.'.png" alt="'.$lang.'" />';
+						echo '<a href="?lang='.$lang.$ruri.'">'.$img.'</a>';
 					} else {
-						echo '<a class="lang'.$sel.'" href="?lang='.$lang.'">'.$aLabels[$lang].'</a>';
+						echo '<a class="lang'.$sel.'" href="?lang='.$lang.$ruri.'">'.$aLabels[$lang].'</a>';
 					}
 				}
 			}
 			echo '</div>';
 		}
 
-		# message d'information utilisateur si la rÈÈcriture d'url n'est pas activÈe
-		$string = '
-		if($plxAdmin->aConf["urlrewriting"]!="1") {
-			echo "<p class=\"warning\">Plugin MyMultiLingue<br />'.$this->getLang("L_ERR_URL_REWRITING").'</p>";
+		# message d'information utilisateur si la r√©√©criture d'url n'est pas activ√©e Parse error: syntax error, unexpected 'url' (T_STRING), expecting ',' or ';' in core/admin/top.php(148) : eval()'d code on line 2 ::: addslashes
+		echo '<?php '; ?>
+		if($plxAdmin->aConf['urlrewriting']!='1') {
+			echo '<p class="warning">Plugin <?=__CLASS__?><br /><?= plxUtils::strCheck($this->getLang('L_ERR_URL_REWRITING')) ?></p>'.PHP_EOL;
 			plxMsg::Display();
-		}';
-		echo '<?php '.$string.' ?>';
-
+		}
+?><?php
 	}
 
 	/**
-	 * MÈthode qui dÈmarre la buffÈrisation de sortie
-	 *
+	 * M√©thode qui d√©marre la buff√©risation de sortie
 	 * @author	Stephane F
 	 **/
 	public function AdminTopEndHead() {
-		echo '<?php ob_start(); ?>';
+		echo '<?php ';?>ob_start();?><?php
 	}
 
-	/********************************/
-	/* core/admin/admin.php 		*/
-	/********************************/
+	/************************/
+	/* core/admin/admin.php */
+	/************************/
 
-	/* mÈthodes qui gËrent les dÈpendances entre articles - E/S fichiers .xml */
-
+	/* m√©thodes qui g√®rent les d√©pendances entre articles - E/S fichiers .xml */
 	public function AdminArticlePostData() {
-		echo '<?php $art["deplng"] = $_POST["deplng"]; ?>';
+		echo '<?php ';?>$art['deplng'] = $_POST['deplng'];?><?php
 	}
-
 	public function AdminArticlePreview() {
-		echo '<?php $art["deplng"] = $_POST["deplng"]; ?>';
+		echo '<?php ';?>$art['deplng'] = $_POST['deplng'];?><?php
 	}
-
 	public function AdminArticleParseData() {
-		echo '<?php $art["deplng"] = $result["deplng"]; ?>';
+		echo '<?php ';?>$art['deplng'] = $result['deplng'];?><?php
 	}
-
 	public function AdminArticleInitData() {
-		echo '<?php $art["deplng"] = null; ?>';
+		echo '<?php ';?>$art['deplng'] = null;?><?php
 	}
 
 	/**
-	 * MÈthode qui affiche les dÈpendances d'articles entre les langues
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui affiche les d√©pendances d'articles entre les langues
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function AdminArticleContent() {
-
 		if($this->aLangs) {
 			echo '<p>'.$this->getLang('L_IDENT_ARTICLE').'</p>';
 			echo '<ul class="unstyled-list">';
-			foreach($this->aLangs as $lang) {
-				if($this->lang!=$lang) {
-					echo '<?php
-					$img = "<img src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />";
-					$id = $titre = "";
-					if(isset($art["deplng"]["'.$lang.'"])) {
-						$id = $art["deplng"]["'.$lang.'"];
-						$id = intval($id)>0 ? str_pad($id,4,"0",STR_PAD_LEFT) : "";
-						# rÈcupÈration du titre de l article correspondant ‡ la langue
-						$root = PLX_ROOT.$plxAdmin->aConf["racine_articles"];
-						$root = str_replace("/'.$this->lang.'/", "/'.$lang.'/", $root);
+			foreach($this->aLangs as $mml_lang) {
+				if($this->lang!=$mml_lang) {
+					echo '<?php $mml_lang = "'.$mml_lang.'"; $this_lang = "'.$this->lang.'"; $this_class = "' . __CLASS__ .'";'; ?>
+					$img = '<img src="'.PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png" alt="'.$mml_lang.'" />';
+					$id = $titre = '';
+					if(isset($art['deplng'][$mml_lang])) {
+						$id = $art['deplng'][$mml_lang];
+						$id = intval($id)>0 ? str_pad($id,4,'0',STR_PAD_LEFT) : '';
+						# r√©cup√©ration du titre de l article correspondant √† la langue
+						$root = PLX_ROOT.$plxAdmin->aConf['racine_articles'];
+						$root = str_replace('/'.$this_lang.'/', '/'.$mml_lang.'/', $root);
 						$folder = opendir($root);
 						while($file = readdir($folder)) {
-							if(preg_match("/^".$id."(.*).xml$/", $file)) {
+							if(preg_match('/^'.$id.'(.*).xml$/', $file)) {
 								$uniqart = $plxAdmin->parseArticle($root.$file);
-								$titre = $uniqart["title"];
-								$titre = "<a href=\"?lang='.$lang.'&amp;a=".$id."\">".plxUtils::strCheck($titre)."</a>";
+								$titre = $uniqart['title'];
+								$titre = '<a href="?lang='.$mml_lang.'&amp;a='.$id.'">'.plxUtils::strCheck($titre).'</a>';
 								break;
 							}
 						}
 						closedir($folder);
 					}
 					# affichage
-					$fld = "<input value=\"".$id."\" type=\"text\" name=\"deplng['.$lang.']\" maxlength=\"4\" size=\"2\" />";
-					echo "<li>".$img." ".$fld." ".$titre."</li>";
-					?>';
+					$fld = '<input value="'.$id.'" type="text" name="deplng['.$mml_lang.']" maxlength="4" size="2" />';
+					echo '<li>'.$img.' '.$fld.' '.$titre.'</li>';
+?><?PHP
 				}
 			}
 			echo '</ul>';
 		}
 	}
 
-
-	/********************************/
-	/* core/admin/statique.php 		*/
-	/********************************/
+	/****************************/
+	/* core/admin/statiques.php */
+	/****************************/
 
 	/**
-	 * MÈthode qui affiche les dÈpendances des pages statiques entre les langues
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie l'ordre des appels lors de la modif de la liste des pages statiques
+	 * Le chemin de la langue des pages statiques peut-√™tre perdu lors du renommage #next gen ready Fx
+		 * @author Thomas Ingles
+	 **/
+	public function AdminStaticsPrepend() {
+		echo '<?php '; ?>
+		# On √©dite les pages statiques
+		if(!empty($_POST)) {
+			# Controle de l'acc√®s √† la page en fonction du profil de l'utilisateur connect√©
+			$plxAdmin->checkProfil(PROFIL_MANAGER);
+			$plxAdmin->editStatiques($_POST);#Fix lost path lng on next gen (old maybe work) # Before editConf /!\
+			$plxAdmin->editConfiguration(!empty($_POST['homeStatic']) ? array('homestatic'=>$_POST['homeStatic'][0]) : array('homestatic'=>''));
+			header('Location: statiques.php');
+			exit;
+		}
+?><?php
+	}
+
+	/***************************/
+	/* core/admin/statique.php */
+	/***************************/
+
+	/**
+	 * M√©thode qui affiche les d√©pendances des pages statiques entre les langues
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function AdminStatic() {
-
-		echo '<?php
-		# rÈcupÈration des dÈpendances des pages et stockage dans un tableau pour manipulation + facile
+		echo '<?php $this_lang = "'.$this->lang.'"; $this_class = "' . __CLASS__ .'";'; ?>
+		# r√©cup√©ration des d√©pendances des pages et stockage dans un tableau pour manipulation + facile
 		$deplng = array();
-
-		if(isset($plxAdmin->aStats[$id]["deplng"]) AND !empty($plxAdmin->aStats[$id]["deplng"])) {
-			$values = explode("|", $plxAdmin->aStats[$id]["deplng"]);
+		if(isset($plxAdmin->aStats[$id]['deplng']) AND !empty($plxAdmin->aStats[$id]['deplng']) AND strpos($plxAdmin->aStats[$id]['deplng'],',') !== FALSE) {
+			$values = explode('|', $plxAdmin->aStats[$id]['deplng']);
 			foreach($values as $k => $v) {
-				$tmp = explode(",", $v);
+				$tmp = explode(',', $v);
 				$deplng[$tmp[0]] = $tmp[1];
 			}
 		}
-		?>';
-
+?><?php
 		# affichage des drapeaux
 		if($this->aLangs) {
 			echo '<p>'.$this->getLang('L_IDENT_STATIC').'</p>';
 			echo '<ul class="unstyled-list">';
-			foreach($this->aLangs as $lang) {
-				if($this->lang!=$lang) {
-					echo '<?php
+			foreach($this->aLangs as $mml_lang) {
+				if($this->lang!=$mml_lang) {
+					echo '<?php $mml_lang="'.$mml_lang.'";'; ?>
 					# recherche du titre de la page statique
-					$img = "<img src=\"'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$lang.'.png\" alt=\"'.$lang.'\" />";
-					$id = $titre = "";
-					if(isset($deplng["'.$lang.'"])) {
-						$id = $deplng["'.$lang.'"];
-						$id = intval($id)>0 ? str_pad($id,3,"0",STR_PAD_LEFT) : "";
-						# rÈcupÈration du titre de la page statique correspondant ‡ la langue
-						$root = PLX_ROOT.PLX_CONFIG_PATH;
-						$root = str_replace("/'.$this->lang.'/", "/'.$lang.'/", $root);
-						$filename=$root."'.$lang.'/statiques.xml";
+					$mmlImg = '<img src="'.PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png" alt="'.$mml_lang.'" />';
+					$mmlId = $mmlTitre = '';
+					if(isset($deplng[$mml_lang])) {
+						$mmlId = $deplng[$mml_lang];
+						$mmlId = intval($mmlId)>0 ? str_pad($mmlId,3,'0',STR_PAD_LEFT) : '';
+						# r√©cup√©ration du titre de la page statique correspondant √† la langue
+						$mmlRoot = PLX_ROOT.PLX_CONFIG_PATH;
+						$mmlRoot = str_replace('/'.$this_lang.'/', '/'.$mml_lang.'/', $mmlRoot);
+						$filename=$mmlRoot.$mml_lang.'/statiques.xml';
 						if(is_file($filename)) {
 							# Mise en place du parseur XML
-							$data = implode("",file($filename));
+							$data = implode('',file($filename));
 							$parser = xml_parser_create(PLX_CHARSET);
 							xml_parser_set_option($parser,XML_OPTION_CASE_FOLDING,0);
 							xml_parser_set_option($parser,XML_OPTION_SKIP_WHITE,0);
 							xml_parse_into_struct($parser,$data,$values,$iTags);
 							xml_parser_free($parser);
-							if(isset($iTags["statique"]) AND isset($iTags["name"])) {
-								$nb = sizeof($iTags["name"]);
-								$size=ceil(sizeof($iTags["statique"])/$nb);
+							if(isset($iTags['statique']) AND isset($iTags['name'])) {
+								$nb = sizeof($iTags['name']);
+								$size=ceil(sizeof($iTags['statique'])/$nb);
 								for($i=0;$i<$nb;$i++) {
-									$attributes = $values[$iTags["statique"][$i*$size]]["attributes"];
-									$number = $attributes["number"];
-									if($number==$id) {
-										# RÈcupÈration du nom de la page statique
-										$titre = plxUtils::getValue($values[$iTags["name"][$i]]["value"]);
-										$titre = "<a href=\"?lang='.$lang.'&amp;p=".$id."\">".plxUtils::strCheck($titre)."</a>";
+									$attributes = $values[$iTags['statique'][$i*$size]]['attributes'];
+									$number = $attributes['number'];
+									if($number==$mmlId) {
+										# R√©cup√©ration du nom de la page statique
+										$mmlTitre = plxUtils::getValue($values[$iTags['name'][$i]]['value']);
+										$mmlTitre = '<a href="?lang='.$mml_lang.'&amp;p='.$mmlId.'">'.plxUtils::strCheck($mmlTitre).'</a>';
 										break;
 									}
 								}
@@ -859,52 +874,56 @@ class plxMyMultiLingue extends plxPlugin {
 						}
 					}
 					# affichage
-					$fld = "<input value=\"".$id."\" type=\"text\" name=\"deplng['.$lang.']\" maxlength=\"3\" size=\"2\" />";
-					echo "<li>".$img." ".$fld." ".$titre."</li>";
-					?>';
+					$mmlFld = '<input value="'.$mmlId.'" type="text" name="deplng['.$mml_lang.']" maxlength="3" size="2" />';
+					echo '<li>'.$mmlImg.' '.$mmlFld.' '.$mmlTitre.'</li>';
+?><?php
 				}
 			}
 			echo '</ul>';
 		}
-
 	}
 
-	/********************************/
-	/* core/admin/foot.php 			*/
-	/********************************/
+	/***********************/
+	/* core/admin/foot.php */
+	/***********************/
 
 	/**
-	 * MÈthode qui rajoute la langue courante dans les liens des articles et des pages statiques permettant
-	 * de les visualiser cotÈ visiteurs (liens "Voir", "Visualiser la page statique sur le site", etc...)
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui rajoute la langue courante dans les liens des articles et des pages statiques permettant
+	 * de les visualiser cot√© visiteurs (liens "Voir", "Visualiser la page statique sur le site", etc...)
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function AdminFootEndBody() {
-
-		echo '<?php
+		echo '<?php '; ?>
 			$output = ob_get_clean();
-			if (!preg_match("/parametres/",basename($_SERVER["SCRIPT_NAME"]))) {
-				$output = preg_replace("#(".$plxAdmin->racine.")(article[a-z0-9-]+\/)#", "$1'.$this->lang.'/$2", $output);
-				$output = preg_replace("#(".$plxAdmin->racine.")(static[a-z0-9-]+\/)#",  "$1'.$this->lang.'/$2", $output);
+			if (!preg_match('/parametres/',basename($_SERVER['SCRIPT_NAME']))) {
+				$output = preg_replace('~('.$plxAdmin->racine.')(article[\w\d-]+\/)~', '$1<?=$this->lang?>/$2', $output);
+				$output = preg_replace('~('.$plxAdmin->racine.')(static[\w\d-]+\/)~', '$1<?=$this->lang?>/$2', $output);
 			}
 			echo $output;
-		?>';
-
+		?><?php
 	}
 
-	/*************************************/
-	/* core/admin/prepend.php            */
-	/*************************************/
+	/**************************/
+	/* core/admin/prepend.php */
+	/**************************/
 
 	/**
-	 * MÈthode pour dÈfinir la langue ‡ utiliser dans l'administration en fonction du profil utilisateur
-	 *
+	 * M√©thode pour d√©finir la langue √† utiliser dans l'administration en fonction du profil utilisateur
+	 * Fix $this->getParam('user_lang') is empty @ constructor + traitement cot√© administration (swd)
 	 * @author	Stephane F
 	 **/
 	public function AdminPrepend() {
 		# on change la langue de l'administration en fonction des drapeaux si parametre user_lang = 0
-		if(!$this->getParam("user_lang") AND isset($_SESSION['data_lang'])) {
-			echo '<?php	$lang = "'.$_SESSION['data_lang'].'"; ?>';
+		if(!$this->getParam('user_lang') AND isset($_SESSION['data_lang'])) {
+			echo '<?php ';?>
+			$lang = $_SESSION['data_lang'];
+			#Fix after logon (if redirected to plugin, or go in admin plugin is not in data lang in first time (2nd click o plug ok)
+			if(isset($_SESSION['admin_lang']) AND $_SESSION['admin_lang'] != $lang){
+				$_SESSION['admin_lang'] = $lang;
+				header('Location: ' . $_SERVER['REQUEST_URI']);#Fix Next gen? Logon : langues des plugins = default_lang
+				exit;
+			}
+?><?php
 		}
 	}
 
@@ -913,250 +932,320 @@ class plxMyMultiLingue extends plxPlugin {
 	/*************************************/
 
 	/**
-	 * MÈthode qui modifie les chemins de PluXml en supprimant la langue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie les chemins de PluXml en supprimant la langue
+	 * @author	Stephane F, Thomas I
 	 **/
 	public function AdminSettingsAdvancedTop() {
 
-		# pour ne pas Ècraser les chemins racine_articles, racine_statiques et racine_commentaires
-		echo '<?php
-			$plxAdmin->aConf["racine_articles"] = str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_articles"]);
-			$plxAdmin->aConf["racine_statiques"] = str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_statiques"]);
-			$plxAdmin->aConf["racine_commentaires"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["racine_commentaires"]);
-		?>';
+		# pour ne pas √©craser les chemins racine_articles, racine_statiques et racine_commentaires
+		echo '<?php ';?>
+			$plxAdmin->aConf['racine_articles'] = str_replace('/<?=$this->lang?>/', '/', $plxAdmin->aConf['racine_articles']);
+			$plxAdmin->aConf['racine_statiques'] = str_replace('/<?=$this->lang?>/', '/', $plxAdmin->aConf['racine_statiques']);
+			$plxAdmin->aConf['racine_commentaires'] =  str_replace('/<?=$this->lang?>/', '/', $plxAdmin->aConf['racine_commentaires']);
+		?><?php
 
-		# pour ne pas Ècraser le chemin du dossier des medias
+		# pour ne pas √©craser le chemin du dossier des medias
 		if($this->getParam('lang_medias_folder')) {
-			echo '<?php $plxAdmin->aConf["medias"] =  str_replace("/'.$this->lang.'/", "/", $plxAdmin->aConf["medias"]); ?>';
+			echo '<?php ';?>$plxAdmin->aConf['medias'] =  str_replace('/<?=$this->lang?>/', '/', $plxAdmin->aConf['medias']); ?><?php
 		}
-
 	}
 
-	/************************************/
-	/* core/admin/parametres_base.php 	*/
-	/************************************/
+	/**********************************/
+	/* core/admin/parametres_base.php */
+	/**********************************/
 
 	/**
-	 * MÈthode qui remet la vraie langue par dÈfaut de PluXml du fichier parametres.xml, sans tenir compte du multilangue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui remet la vraie langue par d√©faut de PluXml du fichier parametres.xml, sans tenir compte du multilangue
+	 * @author	Stephane F Thomas I
 	 **/
 	public function AdminSettingsBaseTop() {
-
-		echo '<?php
-			$plxAdmin->aConf["default_lang"] = $_SESSION["default_lang"];
-		?>';
-
+		echo '<?php ';?>$plxAdmin->aConf['default_lang'] = $_SESSION['default_lang'];?><?php
 	}
 
-	/********************************/
-	/* /index.php 					*/
-	/********************************/
+	/**************/
+	/* /index.php */
+	/**************/
 
 	/**
-	 * MÈthode qui modifie les liens en tenant compte de la langue courante et de la rÈÈcriture d'urls
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie les liens en tenant compte de la langue courante et de la r√©√©criture d'urls
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function IndexEnd() {
 
-		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
-
-		echo '<?php
-			$output = str_replace("href=\"".$plxMotor->racine."\"", "href=\"".$plxMotor->racine."'.$lang.'\"", $output);
-			$output = str_replace($plxMotor->racine."article", $plxMotor->racine."'.$lang.'article", $output);
-			$output = str_replace($plxMotor->racine."static", $plxMotor->racine."'.$lang.'static", $output);
-			$output = str_replace($plxMotor->racine."categorie", $plxMotor->racine."'.$lang.'categorie", $output);
-			$output = str_replace($plxMotor->racine."tag", $plxMotor->racine."'.$lang.'tag", $output);
-			$output = str_replace($plxMotor->racine."archives", $plxMotor->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxMotor->racine."feed/", $plxMotor->racine."feed/'.$lang.'", $output);
-			$output = str_replace($plxMotor->racine."page", $plxMotor->racine."'.$lang.'page", $output);
-			$output = str_replace($plxMotor->racine."blog", $plxMotor->racine."'.$lang.'blog", $output);
-			$output = str_replace(PLX_PLUGINS, $plxMotor->aConf["racine_plugins"], $output);
-			$output = str_replace("href=\"".$plxMotor->racine.$_SESSION["default_lang"]."/", "href=\"".$plxMotor->racine, $output);
-		?>';
+		$lang = $_SESSION['default_lang']==$this->lang ? '' : $this->lang.'/';
+echo '<?php $mml_lang="'.$lang.'";'; ?>
+		$output = strtr($output, array(
+			'href="'.$plxMotor->racine.'"' => 'href="'.$plxMotor->racine.$mml_lang.'"',
+			$plxMotor->racine.'article' => $plxMotor->racine.$mml_lang.'article',
+			$plxMotor->racine.'static' => $plxMotor->racine.$mml_lang.'static',
+			$plxMotor->racine.'categorie' => $plxMotor->racine.$mml_lang.'categorie',
+			$plxMotor->racine.'tag' => $plxMotor->racine.$mml_lang.'tag',
+			$plxMotor->racine.'archives' => $plxMotor->racine.$mml_lang.'archives',
+			$plxMotor->racine.'feed/' => $plxMotor->racine.'feed/'.$mml_lang,
+			$plxMotor->racine.'page' => $plxMotor->racine.$mml_lang.'page',
+			$plxMotor->racine.'blog' => $plxMotor->racine.$mml_lang.'blog',
+			PLX_PLUGINS => $plxMotor->aConf['racine_plugins'],
+			'href="'.$plxMotor->racine.$_SESSION['default_lang'].'/' => 'href="'.$plxMotor->racine
+		));
+?><?php
 	}
 
 	/**
-	 * MÈthode qui affiche les balises <link rel="alternate"> de tous les articles dÈpendants par langue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui affiche les balises <link rel="alternate"> de tous les articles d√©pendants par langue
+	 * Mofifiable par les hooks plxMyMultiLingueThemeEndHeadBegin plxMyMultiLingueThemeEndHead
+	 * @author	Stephane F, Thomas I.
+	 * Note : never use $output var here :/
 	 **/
 	public function ThemeEndHead() {
-		echo '<?php
-		if($plxMotor->mode=="article") {
+		echo '<?php $this_lang = "'.$this->lang.'";'; ?>
+
+		$outLnk = '';
+
+		#Hook Plugins plxMyMultiLingueThemeEndHeadBegin
+		if(eval($plxMotor->plxPlugins->callHook('<?=__CLASS__.__FUNCTION__?>Begin'))) return;
+
+		if($plxMotor->mode=='article') {
 			# affichage du hreflang pour la langue courante
-			$url = "/article".intval($plxMotor->cible)."/".$plxMotor->plxRecord_arts->f("url");
-			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
-			echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
+			$url = $plxMotor->urlRewrite('article'.intval($plxMotor->cible).'/'.$plxMotor->plxRecord_arts->f('url'));
+			if($this_lang!=$_SESSION['default_lang']) $url = $this_lang.$url;
+			$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$url.'" />'.PHP_EOL;
 			if($plxMotor->infos_arts) {
-				foreach($plxMotor->infos_arts as $lang => $data) {
-					echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+				foreach($plxMotor->infos_arts as $mml_lang => $data) {
+					$outLnk .= '	<link rel="alternate" hreflang="'.$mml_lang.'" href="'.$data['url'].'" />'.PHP_EOL;
 				}
 			}
 		}
-		if($plxMotor->mode=="static") {
+		if($plxMotor->mode=='static') {
 			# affichage du hreflang pour la langue courante
-			$url = "/static".intval($plxMotor->cible)."/".$plxMotor->aStats[$plxMotor->cible]["url"];
-			if("'.$this->lang.'"!=$_SESSION["default_lang"]) $url = "'.$this->lang.'".$url;
-			if($plxMotor->aConf["homestatic"] == $plxMotor->cible)
-				echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$plxMotor->racine."\" />\n";
+			$url = $plxMotor->urlRewrite('static'.intval($plxMotor->cible).'/'.$plxMotor->aStats[$plxMotor->cible]['url']);
+			if($this_lang!=$_SESSION['default_lang']) $url = $this_lang.$url;
+			if($plxMotor->aConf['homestatic'] == $plxMotor->cible)
+				$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$plxMotor->racine.'" />'.PHP_EOL;
 			else
-				echo "\t<link rel=\"alternate\" hreflang=\"'.$this->lang.'\" href=\"".$url."\" />\n";
+				$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$url.'" />'.PHP_EOL;
 			if($plxMotor->infos_statics) {
-				foreach($plxMotor->infos_statics as $lang => $data) {
-					if($data["homestatic"])
-						echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$plxMotor->racine.$lang."/\" />\n";
+				foreach($plxMotor->infos_statics as $mml_lang => $data) {
+					if($data['homestatic'])
+						$outLnk .= '	<link rel="alternate" hreflang="'.$mml_lang.'" href="'.$plxMotor->racine.$mml_lang.'/" />'.PHP_EOL;
 					else
-						echo "\t<link rel=\"alternate\" hreflang=\"".$lang."\" href=\"".$data["url"]."\" />\n";
+						$outLnk .= '	<link rel="alternate" hreflang="'.$mml_lang.'" href="'.$plxMotor->racine.$data['url'].'" />'.PHP_EOL;
 				}
 			}
 		}
-		?>';
+
+		#Hook Plugins plxMyMultiLingueThemeEndHead
+		eval($plxMotor->plxPlugins->callHook('<?=__CLASS__.__FUNCTION__?>'));
+
+		echo $outLnk;
+
+?><?php
 	}
 
-
-	/********************************/
-	/* feed.php 					*/
-	/********************************/
+	/************/
+	/* feed.php */
+	/************/
 
 	/**
-	 * MÈthode qui modifie les liens en tenant compte de la langue courante et de la rÈÈcriture d'urls
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui modifie les liens en tenant compte de la langue courante et de la r√©√©criture d'urls
+	 * @author	Stephane F, Thomas I.
 	 **/
 	public function FeedEnd() {
-
-		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
-
-		echo '<?php
-			$output = str_replace($plxFeed->racine."article", $plxFeed->racine."'.$lang.'article", $output);
-			$output = str_replace($plxFeed->racine."static", $plxFeed->racine."'.$lang.'static", $output);
-			$output = str_replace($plxFeed->racine."categorie", $plxFeed->racine."'.$lang.'categorie", $output);
-			$output = str_replace($plxFeed->racine."tag", $plxFeed->racine."'.$lang.'tag", $output);
-			$output = str_replace($plxFeed->racine."archives", $plxFeed->racine."'.$lang.'archives", $output);
-			$output = str_replace($plxFeed->racine."feed/", $plxFeed->racine."feed/'.$lang.'", $output);
-			$output = str_replace($plxFeed->racine."page", $plxFeed->racine."'.$lang.'page", $output);
-			$output = str_replace($plxFeed->racine."blog", $plxFeed->racine."'.$lang.'blog", $output);
-			$output = str_replace("<link>".$plxFeed->racine."</link>", "<link>".$plxFeed->racine."'.$lang.'</link>", $output);
-		?>';
-
+		$lang = $_SESSION['default_lang']!=$this->lang?$this->lang.'/':'';
+		echo '<?php $mml_lang="'.$lang.'";'; ?>
+		$output = strtr($output, array(
+			$plxFeed->racine.'article' => $plxFeed->racine.$mml_lang.'article',
+			$plxFeed->racine.'static' => $plxFeed->racine.$mml_lang.'static',
+			$plxFeed->racine.'categorie' => $plxFeed->racine.$mml_lang.'categorie',
+			$plxFeed->racine.'tag' => $plxFeed->racine.$mml_lang.'tag',
+			$plxFeed->racine.'archives' => $plxFeed->racine.$mml_lang.'archives',
+			$plxFeed->racine.'feed/' => $plxFeed->racine.'feed/'.$mml_lang,
+			$plxFeed->racine.'page' => $plxFeed->racine.$mml_lang.'page',
+			$plxFeed->racine.'blog' => $plxFeed->racine.$mml_lang.'blog',
+			'<link>'.$plxFeed->racine.'</link>' => '<link>'.$plxFeed->racine.$mml_lang.'</link>'
+		));
+?><?php
 	}
 
-	/********************************/
-	/* sitemap.php 					*/
-	/********************************/
+	/***************/
+	/* sitemap.php */
+	/***************/
 
 	/**
-	 * MÈthode qui gÈnËre un sitemap en fonction d'une langue
-	 *
-	 * @author	Stephane F
+	 * M√©thode qui g√©n√®re un sitemap en fonction d'une langue
+		 * @author	Stephane F, Thomas I.
 	 **/
 	public function SitemapBegin() {
-
 		# affichage du sitemapindex ou du sitemap de la langue
-		if(!preg_match("/sitemap.php\/([a-zA-Z]{2})$/", $_SERVER["REQUEST_URI"], $capture)) {
-			# crÈation d'un sitemapindex
-			echo '<?php echo "<?xml version=\"1.0\" encoding=\"".strtolower(PLX_CHARSET)."\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" ?>';
-			foreach($this->aLangs as $lang) {
-				echo '<?php echo "\n\t<sitemap>"; ?>';
-				echo '<?php echo "\n\t\t<loc>".$plxMotor->racine."sitemap.php/'.$lang.'</loc>"; ?>';
-				echo '<?php echo "\n\t</sitemap>"; ?>';
-			}
-			echo '<?php echo "\n</sitemapindex>"; ?>';
-			echo '<?php return true; ?>';
+		if(!preg_match('~sitemap.php\/([a-zA-Z]{2})$~', $_SERVER['REQUEST_URI'], $capture)) {
+			# cr√©ation d'un sitemapindex
+			header('Content-type: text/xml');
+echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EOL;
+?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<?php	foreach($this->aLangs as $lang) {?>
+	<sitemap>
+		<loc><?='<?=$plxMotor->racine?>sitemap.php/'.$lang?></loc>
+	</sitemap>
+<?php	}?>
+</sitemapindex>
+<?php
+			echo '<?php return true; ?>';#stop here
 		}
 	}
 
+	/**
+	 * M√©thode qui change la racine en fonction de la langue en cours
+	 * Note : incertains de l'utilit√© de modifier la racine ici #Thomas
+	 * puisque la langue par defaut n'a point de sur domaine
+	 * Risque de dupliquer les contenus :/ Remplacement d√©sactiv√© #plm Thomas. (Faire attention aux fin de PHP ? >)
+	 * @author	Stephane F, Thomas I.
+	 **/
 	public function SitemapEnd() {
 
 		$this->IndexEnd();
-
-		$lang = $_SESSION['default_lang']==$this->lang ? "" : $this->lang."/";
-
-		echo '<?php
-			$output = str_replace("<loc>".$plxMotor->racine."</loc>", "<loc>".$plxMotor->racine."'.$lang.'</loc>", $output);
-		?>';
-
+		#if($_SESSION['default_lang']==$this->lang) {
+			#echo '<?php '; ? >
+			#$output = strtr($output, array('<loc>'.$plxMotor->racine.'</loc>' => '<loc>'.$plxMotor->racine.'<?=$this->lang.'/'? ></loc>'));
+			#? >< ?php
+		#}
 	}
 
 	/*********************************/
-	/* Hooks ‡ mettre dans le thËme  */
+	/* Hooks √† mettre dans le th√®me  */
 	/*********************************/
 
 	/**
-	 * MÈthode qui affiche les drapeaux, le nom des langues ou une liste dÈroulante pour la partie visiteur du site
-	 * ou les liens dÈpendants de l'article rÈdigÈ dans d'autres langues
-	 *
-	 * param	param	si valeur = 'artlinks' on affiche les liens dÈpendants de l'article
+	 * M√©thode qui affiche les drapeaux, le nom des langues ou une liste d√©roulante pour la partie visiteur du site
+	 * ou les liens d√©pendants de l'article r√©dig√© dans d'autres langues.
+	 * Next step: Option List with good url (like flags)
+	 * param	param	si valeur = 'artlinks' on affiche les liens d√©pendants de l'article
 	 * return	stdio
-	 * @author	Stephane F
+	 * Possibility to modify with Hooks plxMyMultiLingueMyMultiLingue[flag]
+	 * @author	Stephane F, Thomas Ingles
 	 **/
 	public function MyMultiLingue($param) {
+		echo '<?php '; ?>
+		$htmls = array('ul','li');#base elements
+		$mmlCss = array('unstyled-list','');#class elements
 
-		# Affichage des drapeaux
-		if($param=="") {
+		#Hook Plugins plxMyMultiLingueMyMultiLingue
+		if(eval($plxMotor->plxPlugins->callHook('<?=__CLASS__.__FUNCTION__?>'))) return;
+
+?><?php
+		# Affichage de la liste des langue ou des drapeaux
+		if($param=='') {
 			$aLabels = unserialize($this->getParam('labels'));
 			if($this->aLangs) {
-				echo '<div id="langs">';
-				if($this->getParam('display')=='listbox') {
-					echo '<select onchange="self.location=\'<?php echo $plxShow->plxMotor->urlRewrite() ?>\'+this.options[this.selectedIndex].value">';
+				echo '<div id="mmlangs">';# Global
+				if($this->getParam('display')=='listbox') {# Liste
+					echo '<select onchange="self.location=\'<?= $plxShow->plxMotor->urlRewrite() ?>\'+this.options[this.selectedIndex].value">'.PHP_EOL;
 					foreach($this->aLangs as $idx=>$lang) {
 						$sel = $this->lang==$lang ? ' selected="selected"':'';
 						$val_lang = $_SESSION['default_lang']==$lang ? "" : $lang.'/';
-						echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>';
+						echo '<option value="'.$val_lang.'"'.$sel.'>'. $aLabels[$lang].'</option>'.PHP_EOL;
 					}
-					echo '</select>';
-				} else {
-					echo '<ul>';
-					foreach($this->aLangs as $idx=>$lang) {
-						$url_lang = $lang.'/';
-						if($_SESSION['default_lang']==$lang) $url_lang="";
-						$sel = $this->lang==$lang ? ' active':'';
-						if($this->getParam('display')=='flag') {
-							echo '<?php
-								$img = "<img class=\"lang'.$sel.'\" src=\"".PLX_PLUGINS."plxMyMultiLingue/img/'.$lang.'.png"."\" alt=\"'.$lang.'\" />";
-								echo "<li><a href=\"'.$url_lang.'\">".$img."</a></li>";
-							?>';
-						} else {
-							echo '<li><?php echo "<a class=\"lang'.$sel.'\" href=\"'.$url_lang.'\">'. $aLabels[$lang].'</a></li>"; ?>';
+					echo '</select>'.PHP_EOL;
+				} else {# Drapeaux
+					echo '<?php #' . __CLASS__ . '->' . __FUNCTION__ . '()' . PHP_EOL; ?>
+
+					$output = '';
+					$display = '<?= $this->getParam('display') ?>';
+					$this_lang = '<?= $this->lang ?>';
+					$this_aLangs = <?= var_export($this->aLangs,!0); ?>;
+					$aLabels = <?= var_export($aLabels,!0); ?>;
+
+					foreach($this_aLangs as $idx => $mml_lang) {
+						$mml_title = ($this_lang == $mml_lang? '‚åÇ': '‚èè') . ' ' . ucfirst($mml_lang);/* L_HOMEPAGE ‚åÇ &#x2302; ‚èè	&#x23CF; */
+						$sel = ($this_lang == $mml_lang)? ' active': '';
+						$url_lang = ($this_lang == $mml_lang)? '#': $plxMotor->get;# Default Url
+						$mml_deplng=FALSE;
+						# article mode principal hook #sidebar
+						if(strpos($plxMotor->mode, 'art') !== FALSE AND $plxMotor->plxRecord_arts) {
+							if($this_lang == $mml_lang){#self
+								$mml_title = plxUtils::strCheck($plxMotor->plxRecord_arts->f('title'));#Found lang title
+								$url_lang = '#';#No reload
+							}
+							if(isset($plxMotor->infos_arts[$mml_lang])) {
+								$mml_title = strip_tags($plxMotor->infos_arts[$mml_lang]['link']);#Found lang title
+								$url_lang = $plxMotor->infos_arts[$mml_lang]['url'];#tep for lng url
+							}
+						}#fi art AND $plxMotor->plxRecord_arts
+
+						# static mode principal hook #sidebar
+						elseif($plxMotor->mode == 'static' AND strpos($plxMotor->aStats[$plxMotor->cible]['deplng'],',') !== FALSE) {
+							$url_lang = $url_lang == $plxMotor->get? $mml_lang.'/': $url_lang;
+
+#							$deplng = explode('|',$plxMotor->aStats[$plxMotor->cible]['deplng']);# str (empty) or like 'fr,002|en,001|es,001|ru,001'
+							if(isset($plxMotor->infos_statics[$mml_lang])) {# have related page(s)
+								$mml_title = strip_tags($plxMotor->infos_statics[$mml_lang]['link']);#Found lang title
+								$url_lang = $plxMotor->infos_statics[$mml_lang]['url'];#tep for lng url
+							}
+
+							if($this_lang == $mml_lang){#self
+								$mml_title = 	plxUtils::strCheck($plxMotor->aStats[ $plxMotor->cible ]['name']);#Found lang title
+								$url_lang = '#';#No reload
+							}
+							elseif(isset($plxMotor->infos_statics[$mml_lang])){
+								$mml_title = strip_tags($plxMotor->infos_statics[$mml_lang]['link']);#Found lang title
+								$url_lang = str_replace($_SESSION['default_lang'].'/', '', $plxMotor->infos_statics[$mml_lang]['url']);
+							}
+						}#fi $plxMotor->aStats
+
+						# add lng if same as begin AND not defaul lng #shift 2 lng HOME
+						if($_SESSION['default_lang']!=$mml_lang ) {
+							$url_lang = $url_lang == $plxMotor->get? $mml_lang.'/': $url_lang;
 						}
+
+						$cssImg = ($url_lang == $mml_lang . '/')? ' homepage': '';
+
+						if($display=='flag') {
+							$img = '<img class="lang'.$sel.$cssImg.'" src="<?= PLX_PLUGINS.__CLASS__?>/img/'.$mml_lang.'.png" alt="'.$mml_lang.'" />';
+							$htm = '<'.$htmls[1].' class="'.$mmlCss[1].'"><a title="'.$mml_title.'" href="'.$url_lang.'">'.$img.'</a></'.$htmls[1].'>'.PHP_EOL;
+						}else{
+							$htm = '<'.$htmls[1].' class="'.$mmlCss[1].'"><a title="'.$mml_title.'" class="lang'.$sel.'" href="'.$url_lang.'">'. $aLabels[$mml_lang].'</a></'.$htmls[1].'>'.PHP_EOL;
+						}
+
+						#Hook Plugins plxMyMultiLingueMyMultiLingueFlag
+						eval($plxMotor->plxPlugins->callHook('<?=__CLASS__.__FUNCTION__?>Flag'));
+
+						# Possibility to modify $htm with Hook
+						$output .= $htm;
+
 					}
-					echo '</ul>';
+
+					echo '<'.$htmls[0].' class="'.$mmlCss[0].'">'.PHP_EOL.$output.'</'.$htmls[0].'>'.PHP_EOL;# ul
+?><?php
 				}
-				echo '</div>';
+				echo '</div>';# Global END
 			}
 		}
-		# Affichage des dÈpendances entre articles
-		elseif($param=="artlinks") {
-			echo '<?php
+		# Affichage des d√©pendances entre articles
+		elseif($param=='artlinks') {
+			echo '<?php '; ?>
 				if(isset($plxMotor->infos_arts)) {
-					$output = "";
-					foreach($plxMotor->infos_arts as $lang => $data) {
-						$output .= "<li>".$data["img"]." ".$data["link"]."</li>";
+					$output = '';
+					foreach($plxMotor->infos_arts as $mml_lang => $data) {
+						$output .= '<'.$htmls[1].' class="'.$mmlCss[1].'">'.$data['img'].' '.$data['link'].'</'.$htmls[1].'>'.PHP_EOL;
 					}
-					if($output!="") {
-						echo "<ul class=\"unstyled-list\">".$output."</ul>";
+					if($output!='') {
+						echo '<'.$htmls[0].' class="'.$mmlCss[0].'">'.PHP_EOL.$output.'</'.$htmls[0].'>'.PHP_EOL;
 					}
 				}
-			?>';
+?><?php
 		}
-		# Affichage des dÈpendances entre articles
-		elseif($param=="staticlinks") {
-			echo '<?php
+		# Affichage des d√©pendances entre statiques
+		elseif($param=='staticlinks') {
+			echo '<?php '; ?>
 				if(isset($plxMotor->infos_statics)) {
-					$output = "";
-					foreach($plxMotor->infos_statics as $lang => $data) {
-						$output .= "<li>".$data["img"]." ".$data["link"]."</li>";
+					$output = '';
+					foreach($plxMotor->infos_statics as $mml_lang => $data) {
+						$output .= '<'.$htmls[1].' class="'.$mmlCss[1].'">'.$data['img'].' '.$data['link'].'</'.$htmls[1].'>'.PHP_EOL;
 					}
-					if($output!="") {
-						echo "<ul class=\"unstyled-list\">".$output."</ul>";
+					if($output!='') {
+						echo '<'.$htmls[0].' class="'.$mmlCss[0].'">'.PHP_EOL.$output.'</'.$htmls[0].'>';
 					}
 				}
-			?>';
+?><?php
 		}
 	}
-
-}
-?>
+}#class end
