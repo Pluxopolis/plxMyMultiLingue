@@ -15,6 +15,7 @@ $LANG = array(
 'L_IDENT_ARTICLE'					=> 'Dependencies on this article: list of identifiers by language (optional)',
 'L_IDENT_STATIC'					=> 'Dependencies on this page: list of identifiers by language (optional)',
 'L_ERR_URL_REWRITING'				=> 'Please enable url rewriting (Settings > Advanced configuration > Enable url rewriting > Yes)',
+'L_MODIF_URL'						=> 'When switching language replace language in url to stay on same page if no page is associated',
 'L_USER_LANG'						=> 'Preserve connected user profile language in administration area',
 );
 ?>
