@@ -1,14 +1,16 @@
-<?php if(!defined('PLX_ROOT')) exit; ?>
-<?php
+<?php defined('PLX_ROOT') or exit;
 
-# Control du token du formulaire
+# Controle du token du formulaire
 plxToken::validateFormToken($_POST);
-
-$Labels = array(
+# Nom du plugin
+$plugName = get_class($plxPlugin);
+# Par defaut
+$Labels = [
 	'fr'	=> 'Français',
 	'en'	=> 'English',
 	'de'	=> 'Deutsch',
 	'es'	=> 'Español',
+	'gr'	=> 'Ελληνικά',
 	'it'	=> 'Italiano',
 	'nl'	=> 'Nederlands',
 	'oc'	=> 'Occitan',
@@ -16,8 +18,10 @@ $Labels = array(
 	'pt'	=> 'Português',
 	'ro'	=> 'Român',
 	'ru'	=> 'Pусский',
-);
+	'ua'	=> 'Українська',
+];
 
+# On enregistre
 if(!empty($_POST)) {
 	$array1=array();
 	$array2=array();
@@ -27,7 +31,7 @@ if(!empty($_POST)) {
 			$array2[$flag] = $_POST['label'][$flag];
 		}
 		//~ uasort($array1, create_function('$a, $b', 'return $a>$b;'));#Deprecated: Function create_function() is deprecated
-		function pmmlcmp($a, $b) {return $a>$b;}# Fonction de comparaison
+		function pmmlcmp($a, $b) {return intval($a>$b);}# Fonction de comparaison
 		uasort($array1, 'pmmlcmp');#Fix Deprecated: Function create_function() is deprecated
 	}
 	$plxPlugin->setParam('flags', implode(",",array_keys($array1)), 'string');
@@ -45,8 +49,8 @@ if(!empty($_POST)) {
 	unset($_SESSION['medias']);
 	unset($_SESSION['folder']);
 	unset($_SESSION['currentfolder']);
-	unset($_SESSION["plxMyMultiLingue"]);
-	header('Location: parametres_plugin.php?p=plxMyMultiLingue');
+	unset($_SESSION[$plugName]);
+	header('Location: '.$_SERVER['REQUEST_URI']);
 	exit;
 }
 
@@ -65,7 +69,7 @@ $lang_medias_folder = $plxPlugin->getParam('lang_medias_folder')=='' ? 0 : $plxP
 $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam('lang_style');
 ?>
 <p><?php $plxPlugin->lang('L_FLAGS') ?></p>
-<form action="parametres_plugin.php?p=plxMyMultiLingue" method="post" id="form_langs">
+<form method="post" id="form_langs">
 	<table class="table" style="width:150px">
 		<thead>
 			<tr>
@@ -81,6 +85,8 @@ $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam(
 			# Initialisation de l'ordre
 			$num = 0;
 			foreach($aLangs as $flag) {
+				# On garde les lettres 'fr 🇫🇷' devient 'fr'
+				$flag = preg_replace('/[^a-z]/s', '', $flag);
 				$order = ++$num;
 				echo '<tr class="line-'.($num%2).'">';
 				$selected = in_array($flag,$aFlags)?'checked="checked" ':'';
@@ -91,7 +97,7 @@ $lang_style = $plxPlugin->getParam('lang_style')=='' ? 0 : $plxPlugin->getParam(
 				else
 					$label = $Labels[$flag];
 				echo '<td><input size="10" maxlength="30" type="input" id="label_'.$flag.'" name="label['.$flag.']" value="'.plxUtils::strCheck($label).'" /></td>';
-				echo '<td><img src="'.PLX_PLUGINS.'plxMyMultiLingue/img/'.$flag.'.png" alt="'.$flag.'" style="width:25px" /></td>';
+				echo '<td><img src="'.PLX_PLUGINS.$plugName.'/img/'.$flag.'.png" alt="'.$flag.'" style="width:25px" /></td>';
 				echo '<td><input size="2" maxlength="2" type="input" id="order_'.$flag.'" name="order['.$flag.']" value="'.$order.'" /></td>';
 				echo '</tr>';
 			}
