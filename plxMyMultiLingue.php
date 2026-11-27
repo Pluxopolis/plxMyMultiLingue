@@ -29,7 +29,6 @@ class plxMyMultiLingue extends plxPlugin {
 			//~ var_dump('Location: ' . $_SERVER['REQUEST_URI']);#Fix? Next gen Logon : langues des plugins = default_lang
 			//~ exit;
 		}
-
 		#===============================
 		# traitement coté administration
 		#===============================
@@ -717,7 +716,7 @@ class plxMyMultiLingue extends plxPlugin {
 		# message d'information utilisateur si la réécriture d'url n'est pas activée Parse error: syntax error, unexpected 'url' (T_STRING), expecting ',' or ';' in core/admin/top.php(148) : eval()'d code on line 2 ::: addslashes
 		echo '<?php '; ?>
 		if($plxAdmin->aConf['urlrewriting']!='1') {
-			echo '<p class="warning">Plugin <?=__CLASS__?><br /><?= plxUtils::strCheck($this->getLang('L_ERR_URL_REWRITING')) ?></p>'.PHP_EOL;
+			echo '<p class="warning">Plugin <?=__CLASS__?><br /><?= strtr($this->getLang('L_ERR_URL_REWRITING'), ["'" => '’']) ?></p>'.PHP_EOL;
 			plxMsg::Display();
 		}
 ?><?php
