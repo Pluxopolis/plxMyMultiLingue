@@ -17,4 +17,3 @@ $LANG = array(
 'L_ERR_URL_REWRITING'				=> 'Schakel url rewriting (Instellingen > Geavanceerde instellingen > inschakelen URL herschrijven > Yes)',
 'L_USER_LANG'						=> 'Preserve aangesloten gebruikersprofiel taal in de administratie gebied',
 );
-?>

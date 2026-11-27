@@ -17,4 +17,3 @@ $LANG = array(
 'L_ERR_URL_REWRITING'				=> 'Ative url reescrever (Configurações > Configuração avançada > Ativar URL reescrever > Sim)',
 'L_USER_LANG'						=> 'Preservar o idioma do perfil de usuário conectado na área de administração',
 );
-?>

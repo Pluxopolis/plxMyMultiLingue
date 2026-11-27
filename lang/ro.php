@@ -17,4 +17,3 @@ $LANG = array(
 'L_ERR_URL_REWRITING'				=> 'Vă rugăm să activați rescrierea URL-ul (Setări > Setare avansată > Activare rescrierea URL-ul > Da)',
 'L_USER_LANG'						=> 'Păstra conectat limbă profil de utilizator în zona de administrare',
 );
-?>
