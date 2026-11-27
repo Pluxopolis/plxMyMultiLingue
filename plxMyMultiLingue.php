@@ -1,6 +1,6 @@
 <?php if (!defined('PLX_ROOT')) exit;
 /**
- * Plugin plxMyMultiLingue 0.9.0
+ * Plugin plxMyMultiLingue 0.9.2
  * @author	Stephane F, Thomas Ingles
  **/
 
@@ -374,8 +374,8 @@ class plxMyMultiLingue extends plxPlugin {
 
 	public function plxMotorDemarrageEnd() {
 		echo '<?php $this_lang = "'.$this->lang.'"; $this_class = "' . __CLASS__ .'";'; ?>
-		$this->infos_arts = null;
-		$this->infos_statics = null;
+		$this->aConf['<?=__CLASS__?>_infos_arts'] = null;
+		$this->aConf['<?=__CLASS__?>_infos_statics'] = null;
 
 		if($this->mode=='article') {
 			if(isset($this->plxRecord_arts)) {
@@ -392,9 +392,9 @@ class plxMyMultiLingue extends plxPlugin {
 									$url = '/article'.intval($ident).'/'.$uniqart['url'];
 									#if($mml_lang!=$_SESSION['default_lang']) $url = $mml_lang.$url;#BUG with 1st default lang
 									$url = $mml_lang.$url;#Fix hook4art
-									$this->infos_arts[$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
-									$this->infos_arts[$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($uniqart['title']).'</a>';
-									$this->infos_arts[$mml_lang]['url'] = $url;
+									$this->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
+									$this->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($uniqart['title']).'</a>';
+									$this->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang]['url'] = $url;
 								}
 								break;
 							}
@@ -444,10 +444,10 @@ class plxMyMultiLingue extends plxPlugin {
 											//if($mml_lang!=$_SESSION['default_lang']) $url = $mml_lang.$url;
 										}
 										$title = plxUtils::getValue($values[$iTags['name'][$i]]['value']);
-										$this->infos_statics[$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
-										$this->infos_statics[$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($title).'</a>';
-										$this->infos_statics[$mml_lang]['url'] = $url;
-										$this->infos_statics[$mml_lang]['homestatic'] = $homestatic;
+										$this->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['img'] = '<img class="lang" src="'.$this->urlRewrite(PLX_PLUGINS.$this_class.'/img/'.$mml_lang.'.png').'" alt="'.$mml_lang.'" />';
+										$this->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['link'] = '<a href="'.$url.'">'.plxUtils::strCheck($title).'</a>';
+										$this->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['url'] = $url;
+										$this->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['homestatic'] = $homestatic;
 									}
 									break;
 								}
@@ -1008,8 +1008,8 @@ echo '<?php $mml_lang="'.$lang.'";'; ?>
 			$url = $plxMotor->urlRewrite('article'.intval($plxMotor->cible).'/'.$plxMotor->plxRecord_arts->f('url'));
 			if($this_lang!=$_SESSION['default_lang']) $url = $this_lang.$url;
 			$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$url.'" />'.PHP_EOL;
-			if($plxMotor->infos_arts) {
-				foreach($plxMotor->infos_arts as $mml_lang => $data) {
+			if($plxMotor->aConf['<?=__CLASS__?>_infos_arts']) {
+				foreach($plxMotor->aConf['<?=__CLASS__?>_infos_arts'] as $mml_lang => $data) {
 					$outLnk .= '	<link rel="alternate" hreflang="'.$mml_lang.'" href="'.$data['url'].'" />'.PHP_EOL;
 				}
 			}
@@ -1022,8 +1022,8 @@ echo '<?php $mml_lang="'.$lang.'";'; ?>
 				$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$plxMotor->racine.'" />'.PHP_EOL;
 			else
 				$outLnk .= '	<link rel="alternate" hreflang="'.$this_lang.'" href="'.$url.'" />'.PHP_EOL;
-			if($plxMotor->infos_statics) {
-				foreach($plxMotor->infos_statics as $mml_lang => $data) {
+			if($plxMotor->aConf['<?=__CLASS__?>_infos_statics']) {
+				foreach($plxMotor->aConf['<?=__CLASS__?>_infos_statics'] as $mml_lang => $data) {
 					if($data['homestatic'])
 						$outLnk .= '	<link rel="alternate" hreflang="'.$mml_lang.'" href="'.$plxMotor->racine.$mml_lang.'/" />'.PHP_EOL;
 					else
@@ -1164,9 +1164,9 @@ echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EO
 								$mml_title = plxUtils::strCheck($plxMotor->plxRecord_arts->f('title'));#Found lang title
 								$url_lang = '#';#No reload
 							}
-							if(isset($plxMotor->infos_arts[$mml_lang])) {
-								$mml_title = strip_tags($plxMotor->infos_arts[$mml_lang]['link']);#Found lang title
-								$url_lang = $plxMotor->infos_arts[$mml_lang]['url'];#tep for lng url
+							if(isset($plxMotor->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang])) {
+								$mml_title = strip_tags($plxMotor->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang]['link']);#Found lang title
+								$url_lang = $plxMotor->aConf['<?=__CLASS__?>_infos_arts'][$mml_lang]['url'];#tep for lng url
 							}
 						}#fi art AND $plxMotor->plxRecord_arts
 
@@ -1175,18 +1175,18 @@ echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EO
 							$url_lang = $url_lang == $plxMotor->get? $mml_lang.'/': $url_lang;
 
 #							$deplng = explode('|',$plxMotor->aStats[$plxMotor->cible]['deplng']);# str (empty) or like 'fr,002|en,001|es,001|ru,001'
-							if(isset($plxMotor->infos_statics[$mml_lang])) {# have related page(s)
-								$mml_title = strip_tags($plxMotor->infos_statics[$mml_lang]['link']);#Found lang title
-								$url_lang = $plxMotor->infos_statics[$mml_lang]['url'];#tep for lng url
+							if(isset($plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang])) {# have related page(s)
+								$mml_title = strip_tags($plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['link']);#Found lang title
+								$url_lang = $plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['url'];#tep for lng url
 							}
 
 							if($this_lang == $mml_lang){#self
 								$mml_title = 	plxUtils::strCheck($plxMotor->aStats[ $plxMotor->cible ]['name']);#Found lang title
 								$url_lang = '#';#No reload
 							}
-							elseif(isset($plxMotor->infos_statics[$mml_lang])){
-								$mml_title = strip_tags($plxMotor->infos_statics[$mml_lang]['link']);#Found lang title
-								$url_lang = str_replace($_SESSION['default_lang'].'/', '', $plxMotor->infos_statics[$mml_lang]['url']);
+							elseif(isset($plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang])){
+								$mml_title = strip_tags($plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['link']);#Found lang title
+								$url_lang = str_replace($_SESSION['default_lang'].'/', '', $plxMotor->aConf['<?=__CLASS__?>_infos_statics'][$mml_lang]['url']);
 							}
 						}#fi $plxMotor->aStats
 
@@ -1221,9 +1221,9 @@ echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EO
 		# Affichage des dépendances entre articles
 		elseif($param=='artlinks') {
 			echo '<?php '; ?>
-				if(isset($plxMotor->infos_arts)) {
+				if(isset($plxMotor->aConf['<?=__CLASS__?>_infos_arts'])) {
 					$output = '';
-					foreach($plxMotor->infos_arts as $mml_lang => $data) {
+					foreach($plxMotor->aConf['<?=__CLASS__?>_infos_arts'] as $mml_lang => $data) {
 						$output .= '<'.$htmls[1].' class="'.$mmlCss[1].'">'.$data['img'].' '.$data['link'].'</'.$htmls[1].'>'.PHP_EOL;
 					}
 					if($output!='') {
@@ -1235,9 +1235,9 @@ echo '<?xml version="1.0" encoding="' . strtolower(PLX_CHARSET) . '"?>' . PHP_EO
 		# Affichage des dépendances entre statiques
 		elseif($param=='staticlinks') {
 			echo '<?php '; ?>
-				if(isset($plxMotor->infos_statics)) {
+				if(isset($plxMotor->aConf['<?=__CLASS__?>_infos_statics'])) {
 					$output = '';
-					foreach($plxMotor->infos_statics as $mml_lang => $data) {
+					foreach($plxMotor->aConf['<?=__CLASS__?>_infos_statics'] as $mml_lang => $data) {
 						$output .= '<'.$htmls[1].' class="'.$mmlCss[1].'">'.$data['img'].' '.$data['link'].'</'.$htmls[1].'>'.PHP_EOL;
 					}
 					if($output!='') {
